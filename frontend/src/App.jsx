@@ -14,12 +14,14 @@ import {
 import CompareSlider from './components/CompareSlider';
 import HazardMap from './components/HazardMap';
 import LiveCameraFeed from './components/LiveCameraFeed';
+import LandingPage from './components/LandingPage';
 
 const API_BASE = "http://localhost:5000";
 
 export default function App() {
   // Navigation & View State
-  const [activeTab, setActiveTab] = useState('landing'); // 'landing', 'dashboard', 'inspector', 'live', 'map', 'analytics', 'reports'
+  const [showLanding, setShowLanding] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'inspector', 'live', 'map', 'analytics', 'reports'
 
   // Upload & Inspection State
   const [selectedFile, setSelectedFile] = useState(null);
@@ -162,21 +164,26 @@ export default function App() {
 
   const hasWaterlogged = analysisResult?.ranked_defects?.some(d => d.is_waterlogged);
 
+  // If user is on the Landing Page, render the dedicated standalone landing view
+  if (showLanding) {
+    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#0c0c0e] text-[#f4efe6] flex font-sans selection:bg-[#f5ebe1] selection:text-[#0c0c0e]">
       
       {/* ================= LEFT SIDEBAR ================= */}
-      <aside className="w-64 border-r border-[#242429] bg-[#101013] flex flex-col justify-between shrink-0 hidden md:flex sticky top-0 h-screen z-40">
+      <aside className="w-56 border-r border-[#242429] bg-[#101013] flex flex-col justify-between shrink-0 hidden md:flex sticky top-0 h-screen z-40">
         <div>
           {/* Logo & Brand Status */}
-          <div className="p-5 border-b border-[#242429] flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-base shadow-[0_0_20px_rgba(245,235,225,0.25)]">
+          <div className="p-4 border-b border-[#242429] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-sm shadow-[0_0_15px_rgba(245,235,225,0.2)]">
                 SL
               </div>
               <div>
-                <span className="font-syne font-extrabold text-base tracking-tight text-[#f4efe6] block">StreetLens</span>
-                <span className="text-[10px] text-[#f5ebe1]/80 font-display font-medium tracking-wider uppercase block flex items-center gap-1.5">
+                <span className="font-syne font-extrabold text-sm tracking-tight text-[#f4efe6] block leading-tight">StreetLens</span>
+                <span className="text-[9px] text-[#f5ebe1]/80 font-display font-medium tracking-wider uppercase block flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#f5ebe1] animate-pulse"></span>
                   AI Vision Active
                 </span>
@@ -185,114 +192,111 @@ export default function App() {
           </div>
 
           {/* Navigation Menu */}
-          <div className="p-3 space-y-1">
-            <span className="px-3 text-[10px] font-display font-bold text-[#8a8880] uppercase tracking-widest block mb-2 mt-3">
+          <div className="p-2.5 space-y-1">
+            <button
+              onClick={() => setShowLanding(true)}
+              className="w-full mb-2 flex items-center justify-between px-3 py-2 rounded-lg text-xs font-display font-semibold text-[#d6d0c7] bg-[#141418] hover:bg-[#1a1a20] border border-[#2e2e38] hover:border-[#f5ebe1]/40 transition-all cursor-pointer shadow-sm group"
+            >
+              <span className="flex items-center gap-2 text-[#f5ebe1]">
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>← Landing Page</span>
+              </span>
+              <ChevronRight className="w-3 h-3 text-[#8a8880] group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            <span className="px-2.5 text-[9px] font-display font-bold text-[#8a8880] uppercase tracking-widest block mb-1 mt-2">
               Platform Menu
             </span>
 
             <button
-              onClick={() => setActiveTab('landing')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-display font-medium transition-all cursor-pointer ${
-                activeTab === 'landing'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_15px_rgba(245,235,225,0.08)]'
-                  : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
-              }`}
-            >
-              <Quote className="w-4 h-4 text-[#f5ebe1]" />
-              <span>Vision & Quotes</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab('dashboard')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-display font-medium transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'dashboard'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_15px_rgba(245,235,225,0.08)]'
+                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <LayoutDashboard className="w-4 h-4" />
+              <LayoutDashboard className="w-3.5 h-3.5" />
               <span>Dashboard</span>
             </button>
 
             <button
               onClick={() => setActiveTab('inspector')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-display font-medium transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'inspector'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_15px_rgba(245,235,225,0.08)]'
+                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <ScanSearch className="w-4 h-4" />
+              <ScanSearch className="w-3.5 h-3.5" />
               <span>Inspection Studio</span>
             </button>
 
             <button
               onClick={() => setActiveTab('live')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-display font-medium transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'live'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_15px_rgba(245,235,225,0.08)]'
+                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <Camera className="w-4 h-4 text-rose-400" />
+              <Camera className="w-3.5 h-3.5 text-rose-400" />
               <span>Live Dashcam Feed</span>
-              <span className="ml-auto flex h-2 w-2 relative">
+              <span className="ml-auto flex h-1.5 w-1.5 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
               </span>
             </button>
 
             <button
               onClick={() => setActiveTab('map')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-display font-medium transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'map'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_15px_rgba(245,235,225,0.08)]'
+                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <MapPin className="w-4 h-4" />
+              <MapPin className="w-3.5 h-3.5" />
               <span>Hazard Map</span>
-              <span className="ml-auto text-[10px] font-mono bg-[#1c1c22] text-[#d6d0c7] px-2 py-0.5 rounded-full border border-[#2b2b34]">
+              <span className="ml-auto text-[9px] font-mono bg-[#1c1c22] text-[#d6d0c7] px-1.5 py-0.5 rounded border border-[#2b2b34]">
                 {pastSessions.length}
               </span>
             </button>
 
             <button
               onClick={() => setActiveTab('analytics')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-display font-medium transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'analytics'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_15px_rgba(245,235,225,0.08)]'
+                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <BarChart3 className="w-4 h-4" />
+              <BarChart3 className="w-3.5 h-3.5" />
               <span>Analytics & Risk</span>
             </button>
 
             <button
               onClick={() => setActiveTab('reports')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-display font-medium transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'reports'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_15px_rgba(245,235,225,0.08)]'
+                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <FileSpreadsheet className="w-4 h-4" />
+              <FileSpreadsheet className="w-3.5 h-3.5" />
               <span>Audit Reports</span>
             </button>
           </div>
         </div>
 
-        {/* User Card */}
+        {/* Status Tag (no personal name) */}
         <div className="p-3 border-t border-[#242429]">
-          <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#141418] border border-[#242429]">
-            <div className="w-8 h-8 rounded-lg bg-[#f5ebe1]/15 text-[#f5ebe1] flex items-center justify-center font-syne font-bold text-xs border border-[#f5ebe1]/30">
-              S
-            </div>
-            <div className="overflow-hidden">
-              <span className="text-xs font-syne font-bold text-[#f4efe6] truncate block">Shreevatsa N J</span>
-              <span className="text-[10px] text-[#8a8880] truncate block font-display">Dept. of CSE (DS) • NHCE</span>
-            </div>
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#141418] border border-[#242429] text-[10px] text-[#8a8880] font-mono">
+            <span className="flex items-center gap-1.5 text-[#f5ebe1]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f5ebe1] animate-pulse"></span>
+              Online
+            </span>
+            <span>v1.0.4</span>
           </div>
         </div>
       </aside>
@@ -301,14 +305,13 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
         
         {/* Top Header */}
-        <header className="h-16 border-b border-[#242429] bg-[#0c0c0e]/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <div className="md:hidden w-8 h-8 rounded-lg bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-sm">
+        <header className="h-13 border-b border-[#242429] bg-[#0c0c0e]/90 backdrop-blur-md px-4 flex items-center justify-between sticky top-0 z-30">
+          <div className="flex items-center gap-2.5">
+            <div className="md:hidden w-7 h-7 rounded-lg bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-xs">
               SL
             </div>
             <div>
-              <h2 className="text-sm font-syne font-bold text-[#f4efe6] capitalize">
-                {activeTab === 'landing' && 'StreetLens Editorial Overview & Vision'}
+              <h2 className="text-xs font-syne font-bold text-[#f4efe6] capitalize">
                 {activeTab === 'dashboard' && 'Executive Road Safety Dashboard'}
                 {activeTab === 'inspector' && 'Visual Inspection Studio'}
                 {activeTab === 'live' && 'Real-Time Dashcam & Road Inspection Stream'}
@@ -319,15 +322,23 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#141418] border border-[#242429] text-[#a29f99]">
-              <Cpu className="w-3.5 h-3.5 text-[#f5ebe1]" />
-              <span className="font-mono text-[11px]">YOLOv8s CPU Engine</span>
+          <div className="flex items-center gap-2.5 text-xs">
+            <button
+              onClick={() => setShowLanding(true)}
+              className="px-2.5 py-1 rounded-lg bg-[#141418] border border-[#242429] hover:border-[#f5ebe1]/40 text-[#d6d0c7] hover:text-[#f4efe6] text-[11px] font-display flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <ExternalLink className="w-3 h-3 text-[#f5ebe1]" />
+              <span className="hidden sm:inline">Landing Page</span>
+            </button>
+
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#141418] border border-[#242429] text-[#a29f99]">
+              <Cpu className="w-3 h-3 text-[#f5ebe1]" />
+              <span className="font-mono text-[10px]">YOLOv8s CPU</span>
             </div>
 
             <button
               onClick={() => { setActiveTab('inspector'); setSelectedFile(null); setAnalysisResult(null); }}
-              className="px-4 py-2 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_20px_rgba(245,235,225,0.25)] transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-[11px] shadow-[0_0_15px_rgba(245,235,225,0.2)] transition-all flex items-center gap-1 cursor-pointer"
             >
               <span>+ New Inspection</span>
             </button>
@@ -335,254 +346,104 @@ export default function App() {
         </header>
 
         {/* Tab Content Area */}
-        <main className="p-6 max-w-7xl w-full mx-auto space-y-6">
-
-          {/* ================= TAB 0: LANDING PAGE & EDITORIAL QUOTES ================= */}
-          {activeTab === 'landing' && (
-            <div className="space-y-12 py-4">
-              
-              {/* Editorial Hero Banner */}
-              <div className="relative rounded-3xl bg-gradient-to-b from-[#141418] via-[#101013] to-[#0c0c0e] border border-[#2b2b33] p-8 md:p-14 overflow-hidden shadow-2xl bg-grid-pattern">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-[#f5ebe1]/5 rounded-full blur-3xl pointer-events-none"></div>
-
-                <div className="max-w-3xl space-y-6 relative z-10">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#f5ebe1]/30 bg-[#f5ebe1]/10 text-[#f5ebe1] text-xs font-display font-semibold uppercase tracking-wider">
-                    <Sparkles className="w-3.5 h-3.5" /> Next-Generation Road Infrastructure Vision
-                  </div>
-
-                  <h1 className="text-4xl sm:text-6xl font-syne font-extrabold text-[#f4efe6] tracking-tight leading-[1.1]">
-                    Safeguarding Urban Transit Through <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f5ebe1] via-[#ded4c7] to-[#baa897] drop-shadow-[0_0_25px_rgba(245,235,225,0.3)]">Autonomous Vision</span>
-                  </h1>
-
-                  <p className="font-quote italic text-2xl sm:text-3xl text-[#f5ebe1]/90 leading-relaxed max-w-2xl">
-                    "Vision is not merely observing what lies in front of us, but safeguarding every meter of the path ahead."
-                  </p>
-
-                  <p className="text-sm sm:text-base text-[#a29f99] leading-relaxed max-w-2xl font-sans">
-                    StreetLens bridges the critical gap between hazardous road surface degradation and rapid municipal intervention. Leveraging fine-tuned YOLOv8 neural inference, depth-of-field Bokeh spotlighting, and multi-vehicle risk modeling.
-                  </p>
-
-                  <div className="flex flex-wrap items-center gap-4 pt-4">
-                    <button
-                      onClick={() => setActiveTab('inspector')}
-                      className="px-7 py-3.5 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-sm shadow-[0_0_25px_rgba(245,235,225,0.25)] transition-all flex items-center gap-2 cursor-pointer"
-                    >
-                      <span>Launch Inspection Studio</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-
-                    <button
-                      onClick={() => setActiveTab('live')}
-                      className="px-7 py-3.5 rounded-xl bg-[#18181c] hover:bg-[#202026] border border-[#2e2e36] text-[#f4efe6] font-display font-semibold text-sm transition-all flex items-center gap-2 cursor-pointer"
-                    >
-                      <Camera className="w-4 h-4 text-rose-400" />
-                      <span>Start Live Dashcam Stream</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Curated Editorial Infrastructure Quotes */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Quote className="w-5 h-5 text-[#f5ebe1]" />
-                  <h3 className="font-syne font-bold text-lg text-[#f4efe6]">Foundational Voices & Ideology</h3>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
-                  {/* Quote 1 */}
-                  <div className="p-6 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-[#f5ebe1]/30 transition-all shadow-xl group">
-                    <div className="space-y-4">
-                      <span className="text-3xl font-quote text-[#f5ebe1]/40 block leading-none">“</span>
-                      <p className="font-quote italic text-xl text-[#f4efe6] leading-snug">
-                        A developed city is not one where the poor have cars, but where public roads are dignified and safe for every citizen.
-                      </p>
-                    </div>
-                    <div className="pt-6 border-t border-[#242429] mt-6">
-                      <span className="font-syne font-bold text-xs text-[#f5ebe1] block">Enrique Peñalosa</span>
-                      <span className="text-[11px] text-[#8a8880] font-display">Urbanist & Former Mayor of Bogotá</span>
-                    </div>
-                  </div>
-
-                  {/* Quote 2 */}
-                  <div className="p-6 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-[#f5ebe1]/30 transition-all shadow-xl group">
-                    <div className="space-y-4">
-                      <span className="text-3xl font-quote text-[#f5ebe1]/40 block leading-none">“</span>
-                      <p className="font-quote italic text-xl text-[#f4efe6] leading-snug">
-                        Civilization moves forward when the roads we build endure the passage of time without claiming human lives.
-                      </p>
-                    </div>
-                    <div className="pt-6 border-t border-[#242429] mt-6">
-                      <span className="font-syne font-bold text-xs text-[#f5ebe1] block">Urban Transit Ethos</span>
-                      <span className="text-[11px] text-[#8a8880] font-display">Global Infrastructure Forum</span>
-                    </div>
-                  </div>
-
-                  {/* Quote 3 */}
-                  <div className="p-6 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-[#f5ebe1]/30 transition-all shadow-xl group">
-                    <div className="space-y-4">
-                      <span className="text-3xl font-quote text-[#f5ebe1]/40 block leading-none">“</span>
-                      <p className="font-quote italic text-xl text-[#f4efe6] leading-snug">
-                        Vision is the art of seeing what is invisible to others — uncovering hidden fissures before they become catastrophe.
-                      </p>
-                    </div>
-                    <div className="pt-6 border-t border-[#242429] mt-6">
-                      <span className="font-syne font-bold text-xs text-[#f5ebe1] block">Jonathan Swift / StreetLens Core</span>
-                      <span className="text-[11px] text-[#8a8880] font-display">Foundational Design Principle</span>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* Core System Capabilities */}
-              <div className="space-y-4">
-                <h3 className="font-syne font-bold text-lg text-[#f4efe6]">System Architecture & Capabilities</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="p-6 rounded-2xl bg-[#141418] border border-[#242429] shadow-xl">
-                    <div className="w-10 h-10 rounded-xl bg-[#f5ebe1]/10 border border-[#f5ebe1]/30 flex items-center justify-center text-[#f5ebe1] mb-4">
-                      <Eye className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-syne font-bold text-[#f4efe6] text-base mb-2">Bokeh Spotlight Focus</h4>
-                    <p className="text-xs text-[#a29f99] leading-relaxed">
-                      Applies soft optical Gaussian blur to benign asphalt surfaces while pinning tack-sharp focus and glowing badges on defects and fractures.
-                    </p>
-                  </div>
-
-                  <div className="p-6 rounded-2xl bg-[#141418] border border-[#242429] shadow-xl">
-                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
-                      <Droplet className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-syne font-bold text-[#f4efe6] text-base mb-2">Waterlogged Cavity Detection</h4>
-                    <p className="text-xs text-[#a29f99] leading-relaxed">
-                      Identifies rainwater masking pothole depth in monsoon corridors, issuing immediate high-priority hydroplaning warnings for two-wheelers.
-                    </p>
-                  </div>
-
-                  <div className="p-6 rounded-2xl bg-[#141418] border border-[#242429] shadow-xl">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4">
-                      <ShieldCheck className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-syne font-bold text-[#f4efe6] text-base mb-2">Multi-User Safety Index</h4>
-                    <p className="text-xs text-[#a29f99] leading-relaxed">
-                      Formulates differentiated vulnerability ratings for motorcyclists, 4-wheelers, and pedestrians based on road fracture dimensions.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Academic Submission Footer Banner */}
-              <div className="p-6 rounded-2xl bg-[#101014] border border-[#242429] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8a8880]">
-                <div>
-                  <span className="font-syne font-bold text-[#f4efe6] block text-sm">StreetLens Autonomous Road Safety</span>
-                  <span>Developed by Shreevatsa N J (1NH24CD148) • Dept. of CSE (Data Science)</span>
-                </div>
-                <div className="font-mono text-[11px] text-[#f5ebe1]/70 bg-[#17171d] px-3 py-1.5 rounded-lg border border-[#2a2a34]">
-                  Course: 24CDS57 • New Horizon College of Engineering
-                </div>
-              </div>
-
-            </div>
-          )}
+        <main className="p-4 sm:p-5 max-w-6xl w-full mx-auto space-y-4">
 
           {/* ================= TAB 1: EXECUTIVE DASHBOARD ================= */}
           {activeTab === 'dashboard' && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Hero Banner */}
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-[#141418] via-[#121216] to-[#141418] border border-[#f5ebe1]/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xl">
+              <div className="p-4 rounded-xl bg-gradient-to-r from-[#141418] via-[#121216] to-[#141418] border border-[#f5ebe1]/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-lg">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#f5ebe1]/10 text-[#f5ebe1] text-[11px] font-display font-semibold mb-2 border border-[#f5ebe1]/25">
-                    <Radio className="w-3 h-3 animate-pulse text-[#f5ebe1]" /> Computer Vision Telemetry Active
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#f5ebe1]/10 text-[#f5ebe1] text-[10px] font-display font-semibold mb-1.5 border border-[#f5ebe1]/25">
+                    <Radio className="w-2.5 h-2.5 animate-pulse text-[#f5ebe1]" /> Computer Vision Telemetry Active
                   </div>
-                  <h3 className="text-xl font-syne font-extrabold text-[#f4efe6]">Urban Infrastructure Safety Monitor</h3>
-                  <p className="text-xs text-[#a29f99] mt-1 max-w-xl font-sans">
+                  <h3 className="text-base font-syne font-extrabold text-[#f4efe6]">Urban Infrastructure Safety Monitor</h3>
+                  <p className="text-[11px] text-[#a29f99] mt-0.5 max-w-xl font-sans">
                     Automated defect detection, optical Bokeh spotlighting, and multi-vehicle vulnerability rating across monitored corridors.
                   </p>
                 </div>
                 <button
                   onClick={() => setActiveTab('inspector')}
-                  className="px-5 py-2.5 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_20px_rgba(245,235,225,0.25)] transition-all flex items-center gap-2 shrink-0 cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_15px_rgba(245,235,225,0.2)] transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                 >
                   <span>Launch Inspection Studio</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* KPI Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429]">
-                  <span className="text-xs text-[#8a8880] font-medium block mb-1">Total Monitored Scans</span>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="p-3.5 rounded-xl bg-[#141418] border border-[#242429]">
+                  <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Total Monitored Scans</span>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-syne font-extrabold text-[#f4efe6]">{pastSessions.length}</span>
-                    <span className="text-xs text-[#f5ebe1] font-medium">Logged in DB</span>
+                    <span className="text-2xl font-syne font-extrabold text-[#f4efe6]">{pastSessions.length}</span>
+                    <span className="text-[10px] text-[#f5ebe1] font-medium">Logged in DB</span>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429]">
-                  <span className="text-xs text-[#8a8880] font-medium block mb-1">Detection Pipeline</span>
+                <div className="p-3.5 rounded-xl bg-[#141418] border border-[#242429]">
+                  <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Detection Pipeline</span>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-syne font-extrabold text-[#f4efe6]">YOLOv8s</span>
-                    <span className="text-xs text-[#8a8880] font-mono">640px</span>
+                    <span className="text-2xl font-syne font-extrabold text-[#f4efe6]">YOLOv8s</span>
+                    <span className="text-[10px] text-[#8a8880] font-mono">640px</span>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429]">
-                  <span className="text-xs text-[#8a8880] font-medium block mb-1">Active Road Condition</span>
+                <div className="p-3.5 rounded-xl bg-[#141418] border border-[#242429]">
+                  <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Active Road Condition</span>
                   <div>{getConditionBadge(analysisResult?.summary?.road_condition || 'GOOD')}</div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429]">
-                  <span className="text-xs text-[#8a8880] font-medium block mb-1">Repair Priority Index</span>
+                <div className="p-3.5 rounded-xl bg-[#141418] border border-[#242429]">
+                  <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Repair Priority Index</span>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-syne font-extrabold text-amber-400">
+                    <span className="text-2xl font-syne font-extrabold text-amber-400">
                       {analysisResult?.summary?.repair_priority || 1}
                     </span>
-                    <span className="text-xs text-[#8a8880] font-sans">/ 5 (Scale)</span>
+                    <span className="text-[10px] text-[#8a8880] font-sans">/ 5 (Scale)</span>
                   </div>
                 </div>
               </div>
 
               {/* Corridor Hazard Density Map & Quick Samples */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 p-5 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-syne font-bold text-[#f4efe6] flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-[#f5ebe1]" /> Corridor Hazard Density
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2 p-4 rounded-xl bg-[#141418] border border-[#242429] flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-xs font-syne font-bold text-[#f4efe6] flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-[#f5ebe1]" /> Corridor Hazard Density
                     </h4>
                     <button 
                       onClick={() => setActiveTab('map')}
-                      className="text-xs text-[#f5ebe1] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      className="text-[11px] text-[#f5ebe1] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
                     >
-                      View Fullscreen <ArrowRight className="w-3.5 h-3.5" />
+                      View Fullscreen <ArrowRight className="w-3 h-3" />
                     </button>
                   </div>
-                  <div className="h-64 rounded-xl overflow-hidden">
+                  <div className="h-52 rounded-lg overflow-hidden">
                     <HazardMap sessions={pastSessions} />
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between">
+                <div className="p-4 rounded-xl bg-[#141418] border border-[#242429] flex flex-col justify-between">
                   <div>
-                    <h4 className="text-sm font-syne font-bold text-[#f4efe6] mb-2 flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-[#f5ebe1]" /> Quick-Test Samples
+                    <h4 className="text-xs font-syne font-bold text-[#f4efe6] mb-1.5 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#f5ebe1]" /> Quick-Test Samples
                     </h4>
-                    <p className="text-xs text-[#a29f99] mb-4">
+                    <p className="text-[11px] text-[#a29f99] mb-3">
                       Test the pipeline with 1 click using preloaded road condition captures.
                     </p>
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       <button
                         onClick={() => {
                           setActiveTab('inspector');
                           handleSelectSample('/samples/sample1_waterlogged.jpg', 'sample_waterlogged_pothole.jpg');
                         }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-[#1a1a20] hover:bg-[#22222a] border border-[#2e2e38] hover:border-[#f5ebe1]/40 text-left transition-all group cursor-pointer"
+                        className="w-full flex items-center gap-2.5 p-2 rounded-lg bg-[#1a1a20] hover:bg-[#22222a] border border-[#2e2e38] hover:border-[#f5ebe1]/40 text-left transition-all group cursor-pointer"
                       >
-                        <img src="/samples/sample1_waterlogged.jpg" alt="sample 1" className="w-12 h-10 object-cover rounded-lg border border-[#3a3a46]" />
+                        <img src="/samples/sample1_waterlogged.jpg" alt="sample 1" className="w-11 h-9 object-cover rounded-md border border-[#3a3a46]" />
                         <div>
                           <span className="text-xs font-display font-semibold text-[#f4efe6] block group-hover:text-[#f5ebe1]">Sample 1: Waterlogged Pothole</span>
-                          <span className="text-[10px] text-[#8a8880]">Cavity with standing water</span>
+                          <span className="text-[9px] text-[#8a8880]">Cavity with standing water</span>
                         </div>
                       </button>
 
@@ -591,18 +452,18 @@ export default function App() {
                           setActiveTab('inspector');
                           handleSelectSample('/samples/sample2_cracks.png', 'sample_road_cracks.png');
                         }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-[#1a1a20] hover:bg-[#22222a] border border-[#2e2e38] hover:border-[#f5ebe1]/40 text-left transition-all group cursor-pointer"
+                        className="w-full flex items-center gap-2.5 p-2 rounded-lg bg-[#1a1a20] hover:bg-[#22222a] border border-[#2e2e38] hover:border-[#f5ebe1]/40 text-left transition-all group cursor-pointer"
                       >
-                        <img src="/samples/sample2_cracks.png" alt="sample 2" className="w-12 h-10 object-cover rounded-lg border border-[#3a3a46]" />
+                        <img src="/samples/sample2_cracks.png" alt="sample 2" className="w-11 h-9 object-cover rounded-md border border-[#3a3a46]" />
                         <div>
                           <span className="text-xs font-display font-semibold text-[#f4efe6] block group-hover:text-[#f5ebe1]">Sample 2: Surface Cracks</span>
-                          <span className="text-[10px] text-[#8a8880]">Longitudinal & structural wear</span>
+                          <span className="text-[9px] text-[#8a8880]">Longitudinal & structural wear</span>
                         </div>
                       </button>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-[#242429] text-[11px] font-mono text-[#8a8880]">
+                  <div className="mt-3 pt-2.5 border-t border-[#242429] text-[10px] font-mono text-[#8a8880]">
                     Model: YOLOv8s • RDD2020 Dataset
                   </div>
                 </div>
