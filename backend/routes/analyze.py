@@ -1,7 +1,10 @@
 import os
 import cv2
+import time
+import base64
+import numpy as np
 from pathlib import Path
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from config import Config
 from database import db
 from models import AnalysisSession, DetectedDefect, RiskMetric, GeneratedReport
@@ -239,3 +242,46 @@ def get_all_sessions():
         return jsonify({"sessions": output}), 200
     except Exception as e:
         return jsonify({"error": f"Could not retrieve sessions: {str(e)}"}), 500
+
+@analyze_bp.route("/api/live_detect_frame", methods=["POST"])
+def live_detect_frame():
+    """
+    Real-time frame inference for live webcam / dashcam feed.
+    Receives JSON { "image": "data:image/jpeg;base64,..." }
+    Returns detections, waterlogged flags, and inference latency.
+    """
+    start_time = time.time()
+    try:
+        data = request.get_json(silent=True) or {}
+        image_b64 = data.get("image", "")
+        if not image_b64:
+            return jsonify({"error": "No image data provided"}), 400
+
+        if "," in image_b64:
+            image_b64 = image_b64.split(",")[1]
+
+        img_bytes = base64.b64decode(image_b64)
+        np_arr = np.frombuffer(img_bytes, np.uint8)
+        frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        if frame is None:
+            return jsonify({"error": "Failed to decode frame"}), 400
+
+        # Run YOLO anomaly detection
+        raw_detections = detect_road_anomalies(frame, conf_threshold=0.25)
+        
+        # Rank defects & check waterlogging
+        summary, ranked_defects, _, _ = rank_and_analyze_defects(raw_detections, frame)
+
+        latency_ms = int((time.time() - start_time) * 1000)
+
+        return jsonify({
+            "status": "success",
+            "latency_ms": latency_ms,
+            "road_condition": summary.get("road_condition", "GOOD"),
+            "total_defects": summary.get("total_defects", 0),
+            "repair_priority": summary.get("repair_priority", 1),
+            "defects": ranked_defects
+        }), 200
+    except Exception as e:
+        return jsonify({"error": f"Live detection error: {str(e)}"}), 500

@@ -5,7 +5,8 @@ import {
   Upload, AlertTriangle, ShieldCheck, FileText, Download, 
   Eye, Activity, RefreshCw, BarChart2, Droplet, ArrowRight, 
   CheckCircle, ChevronRight, Sparkles, Cpu, Layers, Radio,
-  Compass, ShieldAlert, Bot, X, ExternalLink, HelpCircle
+  Compass, ShieldAlert, Bot, X, ExternalLink, HelpCircle,
+  Camera, Video
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
@@ -13,6 +14,7 @@ import {
 } from 'recharts';
 import CompareSlider from './components/CompareSlider';
 import HazardMap from './components/HazardMap';
+import LiveCameraFeed from './components/LiveCameraFeed';
 
 const API_BASE = "http://localhost:5000";
 
@@ -85,6 +87,15 @@ export default function App() {
       console.error("Failed to load sample:", err);
       setErrorMsg("Failed to load sample image.");
     }
+  };
+
+  const handleSnapshotFromLive = (capturedFile) => {
+    setSelectedFile(capturedFile);
+    setPreviewUrl(URL.createObjectURL(capturedFile));
+    setMediaType('image');
+    setActiveTab('inspector');
+    setErrorMsg('');
+    setAnalysisResult(null);
   };
 
   const handleUploadAndAnalyze = async () => {
@@ -299,6 +310,22 @@ export default function App() {
             </button>
 
             <button
+              onClick={() => setActiveTab('live')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                activeTab === 'live'
+                  ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.15)]'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
+              }`}
+            >
+              <Camera className="w-4 h-4" />
+              <span>Live Dashcam Feed</span>
+              <span className="ml-auto flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+              </span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('map')}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'map'
@@ -376,6 +403,7 @@ export default function App() {
               <h2 className="text-sm font-bold text-white capitalize">
                 {activeTab === 'dashboard' && 'Executive Road Safety Dashboard'}
                 {activeTab === 'inspector' && 'Visual Inspection Studio'}
+                {activeTab === 'live' && 'Real-Time Dashcam & Road Inspection Stream'}
                 {activeTab === 'map' && 'Geospatial Hazard Map'}
                 {activeTab === 'analytics' && 'Safety Risk & Defect Analytics'}
                 {activeTab === 'reports' && 'Inspection Audit Ledger & Downloads'}
@@ -528,6 +556,28 @@ export default function App() {
           {activeTab === 'inspector' && (
             <div className="space-y-6">
               
+              {/* Inspection Mode Switcher */}
+              <div className="flex items-center justify-between pb-2">
+                <div className="flex items-center gap-2 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs">
+                  <button
+                    className="px-3.5 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-400 font-bold border border-cyan-500/40"
+                  >
+                    📁 File & Video Ingestion
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('live')}
+                    className="px-3.5 py-1.5 rounded-lg text-zinc-400 hover:text-white font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-rose-400" />
+                    <span>Live Dashcam Stream</span>
+                  </button>
+                </div>
+
+                <span className="text-xs text-zinc-500 hidden sm:inline">
+                  Step-by-step pipeline execution
+                </span>
+              </div>
+
               {/* Stepper */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                 <div className={`p-3 rounded-xl border flex items-center gap-2 ${
@@ -882,7 +932,12 @@ export default function App() {
             </div>
           )}
 
-          {/* ================= TAB 3: HAZARD MAP ================= */}
+          {/* ================= TAB 3: LIVE DASHCAM STREAM ================= */}
+          {activeTab === 'live' && (
+            <LiveCameraFeed onSnapshotReady={handleSnapshotFromLive} />
+          )}
+
+          {/* ================= TAB 4: HAZARD MAP ================= */}
           {activeTab === 'map' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
