@@ -140,7 +140,7 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
 
         const isHigh = d.severity === 'HIGH';
         const isMed = d.severity === 'MEDIUM';
-        const color = isHigh ? '#f43f5e' : (isMed ? '#f59e0b' : '#6366f1');
+        const color = isHigh ? '#f43f5e' : (isMed ? '#f59e0b' : '#f5ebe1');
 
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
@@ -165,7 +165,7 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
         ctx.fillStyle = color;
         ctx.fillRect(x1, Math.max(0, y1 - 20), textWidth + 12, 20);
 
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = (isHigh || isMed) ? '#ffffff' : '#0c0c0e';
         ctx.fillText(label, x1 + 6, Math.max(14, y1 - 6));
       });
 
@@ -207,13 +207,13 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
   return (
     <div className="space-y-4">
       {/* Top Telemetry & Control Bar */}
-      <div className="p-5 rounded-2xl bg-[#121215] border border-zinc-800 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+      <div className="p-5 rounded-2xl bg-[#141417] border border-[#f5ebe1]/15 flex flex-wrap items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-            <Radio className={`w-5 h-5 ${isStreaming ? 'animate-pulse text-indigo-400' : 'text-zinc-500'}`} />
+          <div className="w-10 h-10 rounded-xl bg-[#f5ebe1]/10 border border-[#f5ebe1]/25 flex items-center justify-center text-[#f5ebe1]">
+            <Radio className={`w-5 h-5 ${isStreaming ? 'animate-pulse text-[#f5ebe1]' : 'text-zinc-500'}`} />
           </div>
           <div>
-            <h4 className="font-display font-bold text-white text-base flex items-center gap-2">
+            <h4 className="font-syne font-bold text-white text-base flex items-center gap-2">
               Real-Time Dashcam Stream
               {isStreaming && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/30">
@@ -232,7 +232,7 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
           {!isStreaming ? (
             <button
               onClick={startCamera}
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-display font-bold text-xs shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-display font-bold text-xs shadow-[0_0_20px_rgba(245,235,225,0.3)] transition-all flex items-center gap-2 cursor-pointer"
             >
               <Camera className="w-4 h-4" />
               <span>Start Camera Feed</span>
@@ -241,10 +241,10 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <>
               <button
                 onClick={handleCaptureSnapshot}
-                className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#1a1a1e] hover:bg-zinc-800 border border-[#f5ebe1]/20 text-[#f5ebe1] font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 title="Freeze frame and run full engineering report"
               >
-                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                <Sparkles className="w-3.5 h-3.5 text-[#f5ebe1]" />
                 <span>Capture & Audit</span>
               </button>
               <button
@@ -267,7 +267,7 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
       )}
 
       {/* Live Video Viewport */}
-      <div className="relative w-full aspect-video max-h-[520px] rounded-2xl overflow-hidden border border-zinc-800 bg-[#09090b] flex items-center justify-center shadow-2xl">
+      <div className="relative w-full aspect-video max-h-[520px] rounded-2xl overflow-hidden border border-[#f5ebe1]/15 bg-[#0c0c0e] flex items-center justify-center shadow-2xl">
         <video
           ref={videoRef}
           playsInline
@@ -281,10 +281,10 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
 
         {!isStreaming && (
           <div className="text-center p-8 space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-[#141417] border border-[#f5ebe1]/15 flex items-center justify-center text-zinc-500 mx-auto">
               <Video className="w-8 h-8" />
             </div>
-            <h4 className="font-display font-bold text-white text-base">Dashcam Stream Inactive</h4>
+            <h4 className="font-syne font-bold text-white text-base">Dashcam Stream Inactive</h4>
             <p className="text-xs text-zinc-400 max-w-sm mx-auto">
               Click "Start Camera Feed" to stream live video through YOLOv8s. Bounding boxes and waterlogged cavity warnings will appear in real time.
             </p>
@@ -295,8 +295,8 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
         {isStreaming && (
           <>
             <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
-              <div className="bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-zinc-800 text-xs flex items-center gap-3">
-                <span className="font-mono text-indigo-400 font-bold">{latency} ms</span>
+              <div className="bg-[#0c0c0e]/85 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-[#f5ebe1]/15 text-xs flex items-center gap-3">
+                <span className="font-mono text-[#f5ebe1] font-bold">{latency} ms</span>
                 <span className="text-zinc-600">|</span>
                 <span className="font-mono text-zinc-300 font-bold">{fps} FPS</span>
                 <span className="text-zinc-600">|</span>
@@ -312,11 +312,11 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             </div>
 
             <div className="absolute top-4 right-4 z-10 pointer-events-none">
-              <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl border border-zinc-800 text-xs flex items-center gap-2">
+              <div className="bg-[#0c0c0e]/85 backdrop-blur-md px-4 py-2 rounded-xl border border-[#f5ebe1]/15 text-xs flex items-center gap-2">
                 <span className="text-zinc-400 font-medium">Road Condition:</span>
                 <span className={`font-display font-extrabold uppercase ${
                   roadCondition === 'CRITICAL' ? 'text-rose-400 animate-pulse' : (
-                    roadCondition === 'FAIR' ? 'text-amber-400' : 'text-indigo-400'
+                    roadCondition === 'FAIR' ? 'text-amber-400' : 'text-[#f5ebe1]'
                   )
                 }`}>
                   {roadCondition}
