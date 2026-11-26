@@ -26,7 +26,7 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: { ideal: 'environment' }, // use rear camera on mobile / dashcam
+          facingMode: { ideal: 'environment' },
           width: { ideal: 640 },
           height: { ideal: 480 }
         },
@@ -74,7 +74,6 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
     setHasWaterlogged(false);
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopCamera();
@@ -96,7 +95,6 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
       return;
     }
 
-    // Match canvas size to video
     if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
@@ -104,7 +102,6 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
 
     const ctx = canvas.getContext('2d');
 
-    // Create an off-screen canvas to extract JPEG base64 frame
     const offscreen = document.createElement('canvas');
     offscreen.width = 640;
     offscreen.height = Math.round((640 / video.videoWidth) * video.videoHeight);
@@ -119,7 +116,6 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
       const res = await axios.post(`${API_BASE}/api/live_detect_frame`, { image: dataUrl });
       const data = res.data;
 
-      // Update telemetry
       setLatency(data.latency_ms || 0);
       setRoadCondition(data.road_condition || 'GOOD');
       setActiveDefects(data.defects || []);
@@ -127,14 +123,12 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
       const waterlogged = (data.defects || []).some(d => d.is_waterlogged);
       setHasWaterlogged(waterlogged);
 
-      // Calculate approximate FPS
       const delta = now - lastFrameTimeRef.current;
       lastFrameTimeRef.current = now;
       if (delta > 0) {
         setFps(Math.round(1000 / delta));
       }
 
-      // Draw bounding boxes on canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const scaleX = canvas.width / offscreen.width;
       const scaleY = canvas.height / offscreen.height;
@@ -146,39 +140,32 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
 
         const isHigh = d.severity === 'HIGH';
         const isMed = d.severity === 'MEDIUM';
-        const color = isHigh ? '#f43f5e' : (isMed ? '#f59e0b' : '#06b6d4');
+        const color = isHigh ? '#f43f5e' : (isMed ? '#f59e0b' : '#6366f1');
 
-        // Bounding box with glow
         ctx.strokeStyle = color;
         ctx.lineWidth = 2.5;
         ctx.shadowColor = color;
         ctx.shadowBlur = 10;
         ctx.strokeRect(x1, y1, w, h);
-        ctx.shadowBlur = 0; // reset
+        ctx.shadowBlur = 0;
 
-        // Corner accents
         const cornerLen = Math.min(12, w / 4, h / 4);
         ctx.lineWidth = 4;
         ctx.beginPath();
-        // Top-left
         ctx.moveTo(x1, y1 + cornerLen); ctx.lineTo(x1, y1); ctx.lineTo(x1 + cornerLen, y1);
-        // Top-right
         ctx.moveTo(x2 - cornerLen, y1); ctx.lineTo(x2, y1); ctx.lineTo(x2, y1 + cornerLen);
-        // Bottom-left
         ctx.moveTo(x1, y2 - cornerLen); ctx.lineTo(x1, y2); ctx.lineTo(x1 + cornerLen, y2);
-        // Bottom-right
         ctx.moveTo(x2 - cornerLen, y2); ctx.lineTo(x2, y2); ctx.lineTo(x2, y2 - cornerLen);
         ctx.stroke();
 
-        // Label Badge
         const label = `#${d.rank || 1} ${d.class} (${Math.round((d.confidence || 0.85) * 100)}%)`;
-        ctx.font = 'bold 11px Plus Jakarta Sans, sans-serif';
+        ctx.font = 'bold 11px Space Grotesk, sans-serif';
         const textWidth = ctx.measureText(label).width;
         
         ctx.fillStyle = color;
         ctx.fillRect(x1, Math.max(0, y1 - 20), textWidth + 12, 20);
 
-        ctx.fillStyle = '#07090e';
+        ctx.fillStyle = '#ffffff';
         ctx.fillText(label, x1 + 6, Math.max(14, y1 - 6));
       });
 
@@ -186,7 +173,6 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
       console.warn("Live detection frame error:", err);
     } finally {
       isProcessingRef.current = false;
-      // Schedule next frame check (throttle ~100ms for smooth performance)
       setTimeout(() => {
         if (isStreaming) {
           animationFrameRef.current = requestAnimationFrame(captureAndDetect);
@@ -201,7 +187,6 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
     }
   }, [isStreaming, captureAndDetect]);
 
-  // Capture Snapshot to Run Full Pipeline
   const handleCaptureSnapshot = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
@@ -222,16 +207,16 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
   return (
     <div className="space-y-4">
       {/* Top Telemetry & Control Bar */}
-      <div className="p-4 rounded-2xl bg-[#0c1017] border border-zinc-800 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+      <div className="p-5 rounded-2xl bg-[#121215] border border-zinc-800 flex flex-wrap items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-            <Radio className={`w-5 h-5 ${isStreaming ? 'animate-pulse text-cyan-400' : 'text-zinc-500'}`} />
+          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+            <Radio className={`w-5 h-5 ${isStreaming ? 'animate-pulse text-indigo-400' : 'text-zinc-500'}`} />
           </div>
           <div>
-            <h4 className="font-bold text-white text-sm flex items-center gap-2">
-              Real-Time Dashcam Feed
+            <h4 className="font-display font-bold text-white text-base flex items-center gap-2">
+              Real-Time Dashcam Stream
               {isStreaming && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/30">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-bold border border-rose-500/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> LIVE
                 </span>
               )}
@@ -247,7 +232,7 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
           {!isStreaming ? (
             <button
               onClick={startCamera}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-display font-bold text-xs shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all flex items-center gap-2 cursor-pointer"
             >
               <Camera className="w-4 h-4" />
               <span>Start Camera Feed</span>
@@ -256,10 +241,10 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <>
               <button
                 onClick={handleCaptureSnapshot}
-                className="px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 font-semibold text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-200 font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 title="Freeze frame and run full engineering report"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Capture & Audit</span>
               </button>
               <button
@@ -274,16 +259,15 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
         </div>
       </div>
 
-      {/* Camera Error Alert */}
       {cameraError && (
         <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-800/40 text-rose-300 text-xs flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-rose-400" />
+          <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
           <span>{cameraError}</span>
         </div>
       )}
 
-      {/* Live Video Viewport Container */}
-      <div className="relative w-full aspect-video max-h-[520px] rounded-2xl overflow-hidden border border-zinc-800 bg-[#07090e] flex items-center justify-center shadow-2xl">
+      {/* Live Video Viewport */}
+      <div className="relative w-full aspect-video max-h-[520px] rounded-2xl overflow-hidden border border-zinc-800 bg-[#09090b] flex items-center justify-center shadow-2xl">
         <video
           ref={videoRef}
           playsInline
@@ -300,7 +284,7 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 mx-auto">
               <Video className="w-8 h-8" />
             </div>
-            <h4 className="font-bold text-white text-sm">Dashcam Stream Inactive</h4>
+            <h4 className="font-display font-bold text-white text-base">Dashcam Stream Inactive</h4>
             <p className="text-xs text-zinc-400 max-w-sm mx-auto">
               Click "Start Camera Feed" to stream live video through YOLOv8s. Bounding boxes and waterlogged cavity warnings will appear in real time.
             </p>
@@ -310,38 +294,35 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
         {/* Live HUD Telemetry Overlay */}
         {isStreaming && (
           <>
-            {/* Top-Left HUD */}
             <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
-              <div className="bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-lg border border-zinc-800 text-xs flex items-center gap-3">
-                <span className="font-mono text-cyan-400 font-bold">{latency} ms</span>
-                <span className="text-zinc-500">|</span>
+              <div className="bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-zinc-800 text-xs flex items-center gap-3">
+                <span className="font-mono text-indigo-400 font-bold">{latency} ms</span>
+                <span className="text-zinc-600">|</span>
                 <span className="font-mono text-zinc-300 font-bold">{fps} FPS</span>
-                <span className="text-zinc-500">|</span>
-                <span className="font-semibold text-white">YOLOv8s</span>
+                <span className="text-zinc-600">|</span>
+                <span className="font-display font-semibold text-white">YOLOv8s</span>
               </div>
 
-              {/* Waterlogged Alert Pill */}
               {hasWaterlogged && (
-                <div className="bg-rose-950/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-rose-500/60 text-xs text-rose-200 flex items-center gap-1.5 font-bold animate-pulse">
+                <div className="bg-rose-950/90 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-rose-500/60 text-xs text-rose-200 flex items-center gap-1.5 font-bold animate-pulse font-display">
                   <Droplet className="w-3.5 h-3.5 text-cyan-400" />
                   <span>WATERLOGGED HAZARD DETECTED</span>
                 </div>
               )}
             </div>
 
-            {/* Top-Right Condition Badge */}
             <div className="absolute top-4 right-4 z-10 pointer-events-none">
-              <div className="bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-xl border border-zinc-800 text-xs flex items-center gap-2">
-                <span className="text-zinc-400">Road Condition:</span>
-                <span className={`font-black uppercase ${
+              <div className="bg-black/80 backdrop-blur-md px-4 py-2 rounded-xl border border-zinc-800 text-xs flex items-center gap-2">
+                <span className="text-zinc-400 font-medium">Road Condition:</span>
+                <span className={`font-display font-extrabold uppercase ${
                   roadCondition === 'CRITICAL' ? 'text-rose-400 animate-pulse' : (
-                    roadCondition === 'FAIR' ? 'text-amber-400' : 'text-cyan-400'
+                    roadCondition === 'FAIR' ? 'text-amber-400' : 'text-indigo-400'
                   )
                 }`}>
                   {roadCondition}
                 </span>
-                <span className="text-zinc-500">•</span>
-                <span className="font-bold text-white">{activeDefects.length} Defect(s)</span>
+                <span className="text-zinc-600">•</span>
+                <span className="font-mono font-bold text-white">{activeDefects.length} Defect(s)</span>
               </div>
             </div>
           </>
