@@ -1,0 +1,46 @@
+# Python & Virtual Environment
+backend/venv/
+backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment Variables
+backend/.env
+.env
+.env.local
+
+# Storage & Temporary Files (Keep folder structure via .gitkeep)
+backend/storage/*.db
+backend/storage/*.sqlite
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+backend/storage/enhanced/*
+!backend/storage/enhanced/.gitkeep
+backend/storage/annotated/*
+!backend/storage/annotated/.gitkeep
+backend/storage/reports/*
+!backend/storage/reports/.gitkeep
+
+# Model Weights (Large binary files, keep trained best_road_damage.pt under 100MB)
+backend/models/*.pt
+!backend/models/best_road_damage.pt
+backend/models/*.onnx
+
+# Node / React Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Specific
+Thumbs.db
+.DS_Store
+
+# Large Archives & Datasets
+*.zip
+*.tar
+*.gz
+*.rar
