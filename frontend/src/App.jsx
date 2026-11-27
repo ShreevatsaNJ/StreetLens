@@ -208,13 +208,13 @@ export default function App() {
               className="flex items-center gap-2.5 cursor-pointer group"
               title="Return to StreetLens Landing Page"
             >
-              <div className="w-8 h-8 rounded-lg bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-sm shadow-[0_0_15px_rgba(245,235,225,0.2)] group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#fef08a] via-[#fbbf24] to-[#f59e0b] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-sm shadow-[0_0_18px_rgba(245,158,11,0.4)] group-hover:scale-105 transition-transform">
                 SL
               </div>
               <div>
-                <span className="font-syne font-extrabold text-sm tracking-tight text-[#f4efe6] block leading-tight group-hover:text-[#f5ebe1] transition-colors">StreetLens</span>
-                <span className="text-[9px] text-[#f5ebe1]/80 font-display font-medium tracking-wider uppercase block flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#f5ebe1] animate-pulse"></span>
+                <span className="font-syne font-extrabold text-sm tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#fffbeb] via-[#fef08a] to-[#f59e0b] block leading-tight drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]">StreetLens</span>
+                <span className="text-[9px] text-[#fbbf24]/80 font-display font-medium tracking-wider uppercase block flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#fbbf24] animate-pulse"></span>
                   AI Vision Active
                 </span>
               </div>
@@ -311,7 +311,7 @@ export default function App() {
         {/* Top Header (Seamlessly blended, zero opaque box separation) */}
         <header className="h-13 bg-transparent px-4 flex items-center justify-between sticky top-0 z-30">
           <div className="flex items-center gap-2.5">
-            <div className="md:hidden w-7 h-7 rounded-lg bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-xs">
+            <div className="md:hidden w-7 h-7 rounded-lg bg-gradient-to-br from-[#fef08a] via-[#fbbf24] to-[#f59e0b] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-xs shadow-[0_0_12px_rgba(245,158,11,0.4)]">
               SL
             </div>
             <div>
