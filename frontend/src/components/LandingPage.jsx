@@ -13,7 +13,7 @@ const ROAD_TELEMETRY_ITEMS = [
     title: 'Pothole & Cavity Detection',
     detail: '94% Conf • BBox HUD',
     badge: 'LIVE AI',
-    color: '#fbbf24'
+    color: '#f59e0b'
   },
   {
     id: 2,
@@ -22,7 +22,7 @@ const ROAD_TELEMETRY_ITEMS = [
     title: 'Gaussian Bokeh Spotlight',
     detail: 'Isolation Focus',
     badge: 'BOKEH',
-    color: '#fde047'
+    color: '#fde68a'
   },
   {
     id: 3,
@@ -40,7 +40,7 @@ const ROAD_TELEMETRY_ITEMS = [
     title: 'Longitudinal Cracking',
     detail: 'P2 Maintenance',
     badge: 'CRACK AUDIT',
-    color: '#f59e0b'
+    color: '#d97706'
   },
   {
     id: 5,
@@ -77,7 +77,7 @@ function CompactRoadTicker() {
           {items.map((item, idx) => (
             <div
               key={`${item.id}-${idx}`}
-              className="w-44 sm:w-48 md:w-52 shrink-0 rounded-lg bg-[#141418] border border-[#26262d] hover:border-amber-400/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all p-1 shadow-md group/card cursor-pointer"
+              className="w-44 sm:w-48 md:w-52 shrink-0 rounded-lg bg-[#141418] border border-[#26262d] hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.12)] transition-all p-1 shadow-md group/card cursor-pointer"
             >
               {/* Image Frame */}
               <div className="relative rounded-md overflow-hidden aspect-[16/10] bg-black">
@@ -122,34 +122,34 @@ function CompactRoadTicker() {
 
 export default function LandingPage({ onGetStarted }) {
   return (
-    <div className="min-h-screen bg-[#0c0c0e] text-[#f4efe6] font-sans selection:bg-amber-400 selection:text-[#0c0c0e] flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-[#0c0c0e] text-[#f4efe6] font-sans selection:bg-amber-400/30 selection:text-amber-100 flex flex-col relative overflow-hidden">
       
       {/* Ambient Deep Learning Neural Network Background */}
       <NeuralNetworkBackground opacity={0.65} />
 
-      {/* ================= TOP NAVBAR (Seamlessly blended, zero opaque separation) ================= */}
+      {/* ================= TOP NAVBAR ================= */}
       <header className="sticky top-0 z-50 bg-transparent transition-all">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           
-          {/* Logo with Golden Yellow Glow */}
+          {/* Logo with Refined Gold Accent */}
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#fef08a] via-[#fbbf24] to-[#f59e0b] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-xs shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#fde68a] to-[#d97706] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-xs shadow-[0_0_12px_rgba(217,119,6,0.25)]">
               SL
             </div>
             <div>
-              <span className="font-syne font-extrabold text-sm tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#fffbeb] via-[#fef08a] to-[#f59e0b] block leading-none drop-shadow-[0_0_12px_rgba(245,158,11,0.35)]">
+              <span className="font-syne font-extrabold text-sm tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#fff] via-[#fde68a] to-[#d97706] block leading-none drop-shadow-[0_0_8px_rgba(217,119,6,0.2)]">
                 StreetLens
               </span>
-              <span className="text-[9px] text-[#fbbf24]/90 font-display font-medium tracking-wider uppercase block">
+              <span className="text-[9px] text-amber-400/80 font-display font-medium tracking-wider uppercase block">
                 Road AI Vision
               </span>
             </div>
           </div>
 
-          {/* CTA Action with Golden Button */}
+          {/* CTA Action with Soft Gold Button */}
           <button
             onClick={onGetStarted}
-            className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#fef08a] via-[#fbbf24] to-[#f59e0b] hover:from-white hover:to-[#fbbf24] text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_18px_rgba(245,158,11,0.4)] transition-all flex items-center gap-1.5 cursor-pointer transform hover:scale-[1.03] active:scale-95"
+            className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_12px_rgba(217,119,6,0.25)] transition-all flex items-center gap-1.5 cursor-pointer transform hover:scale-[1.02] active:scale-95"
           >
             <span>Get Started</span>
             <ArrowRight className="w-3.5 h-3.5 text-amber-950" />
@@ -157,42 +157,40 @@ export default function LandingPage({ onGetStarted }) {
         </div>
       </header>
 
-      {/* ================= HERO SECTION WITH WARM AMBER & GOLDEN GLOW ================= */}
+      {/* ================= HERO SECTION WITH REFINED WARM GLOW ================= */}
       <section className="relative pt-8 pb-10 md:pt-10 md:pb-12 overflow-hidden bg-grid-pattern border-b border-[#242429]">
-        {/* Ambient Warm Golden Halos */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-gradient-to-r from-amber-500/20 via-yellow-400/20 to-amber-600/15 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute top-10 left-1/3 -translate-x-1/2 w-[280px] h-[150px] bg-yellow-500/15 rounded-full blur-[90px] pointer-events-none"></div>
-        <div className="absolute top-10 right-1/3 translate-x-1/2 w-[280px] h-[150px] bg-amber-500/15 rounded-full blur-[90px] pointer-events-none"></div>
+        {/* Soft, Non-Glaring Ambient Halos */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[450px] h-[180px] bg-gradient-to-r from-amber-500/8 via-yellow-500/6 to-amber-600/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-3xl mx-auto px-4 text-center relative z-10 flex flex-col items-center">
           
-          {/* Eyebrow badge with Golden Amber Accent */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-300 text-[9px] font-display font-semibold uppercase tracking-wider mb-3 shadow-[0_0_15px_rgba(245,158,11,0.25)] backdrop-blur-sm">
-            <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-pulse" /> Next-Gen Road Safety AI
+          {/* Eyebrow badge with Tasteful Gold Amber Accent */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-400/30 bg-amber-500/10 text-amber-300 text-[9px] font-display font-semibold uppercase tracking-wider mb-3 shadow-[0_0_10px_rgba(217,119,6,0.15)] backdrop-blur-sm">
+            <Sparkles className="w-2.5 h-2.5 text-amber-300" /> Next-Gen Road Safety AI
           </div>
 
-          {/* Calibrated headline with Glowing Golden Font */}
+          {/* Calibrated headline with Soft Champagne Gold Focus */}
           <h1 className="text-xl sm:text-2xl md:text-3xl font-syne font-extrabold text-[#f4efe6] tracking-tight leading-snug max-w-xl mb-2.5">
             Safeguarding Urban Transit Through{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fffbeb] via-[#fde047] to-[#f59e0b] drop-shadow-[0_0_28px_rgba(245,158,11,0.6)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fff] via-[#fde68a] to-[#d97706] drop-shadow-[0_0_12px_rgba(217,119,6,0.25)]">
               Autonomous Vision
             </span>
           </h1>
 
-          {/* Editorial quote kicker with Golden Warmth & Glow */}
-          <p className="font-quote italic text-lg sm:text-xl md:text-2xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffbeb] via-[#fef08a] to-[#fbbf24] max-w-xl mb-3.5 leading-relaxed tracking-wide drop-shadow-[0_0_16px_rgba(251,191,36,0.35)]">
-            “Vision is not merely seeing what lies in front of us, but safeguarding every meter of the road ahead.”
+          {/* Editorial quote kicker - Clean & Dignified Ivory with Gold Quotation Marks */}
+          <p className="font-quote italic text-lg sm:text-xl md:text-2xl text-[#f4efe6] max-w-xl mb-3.5 leading-relaxed tracking-wide">
+            <span className="text-amber-400 font-serif">“</span>Vision is not merely seeing what lies in front of us, but safeguarding every meter of the road ahead.<span className="text-amber-400 font-serif">”</span>
           </p>
 
           <p className="text-[11px] sm:text-xs text-[#a29f99] max-w-md mb-5 leading-relaxed font-sans">
             StreetLens pairs fine-tuned YOLOv8 neural inference with optical Bokeh spotlighting, waterlogged puddle detection, and multi-vehicle risk modeling to protect pedestrians, two-wheelers, and motorists.
           </p>
 
-          {/* Primary Action Button with Golden Yellow Glow */}
+          {/* Primary Action Button */}
           <div className="mb-2">
             <button
               onClick={onGetStarted}
-              className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#fef08a] via-[#fbbf24] to-[#f59e0b] hover:from-white hover:to-[#fbbf24] text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_25px_rgba(245,158,11,0.5)] hover:shadow-[0_0_35px_rgba(245,158,11,0.75)] transition-all flex items-center gap-2 cursor-pointer transform hover:scale-105 active:scale-95"
+              className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_15px_rgba(217,119,6,0.3)] transition-all flex items-center gap-2 cursor-pointer transform hover:scale-105 active:scale-95"
             >
               <span>Get Started</span>
               <ArrowRight className="w-3.5 h-3.5 text-amber-950" />
@@ -208,14 +206,14 @@ export default function LandingPage({ onGetStarted }) {
       {/* ================= FEATURES SECTION ================= */}
       <section id="features" className="py-10 md:py-12 max-w-5xl mx-auto px-4 space-y-6">
         
-        {/* Section Heading with Golden Yellow Focus */}
+        {/* Section Heading */}
         <div className="text-center max-w-lg mx-auto space-y-1.5">
-          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[9px] font-display font-semibold uppercase tracking-wider shadow-[0_0_12px_rgba(245,158,11,0.2)]">
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[9px] font-display font-semibold uppercase tracking-wider shadow-[0_0_10px_rgba(217,119,6,0.15)]">
             Capabilities
           </div>
           <h2 className="text-lg sm:text-xl font-syne font-extrabold text-[#f4efe6] tracking-tight">
             Engineered for{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#fde047] to-[#f59e0b] drop-shadow-[0_0_15px_rgba(245,158,11,0.35)]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#fde68a] to-[#d97706]">
               Modern Road Audits
             </span>
           </h2>
@@ -228,7 +226,7 @@ export default function LandingPage({ onGetStarted }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           
           {/* Feature 1: Real-Time Live Dashcam HUD */}
-          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all shadow-sm group space-y-2">
+          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm group space-y-2">
             <div className="w-7 h-7 rounded-md bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
               <Camera className="w-3.5 h-3.5" />
             </div>
@@ -244,7 +242,7 @@ export default function LandingPage({ onGetStarted }) {
           </div>
 
           {/* Feature 2: Optical Bokeh Spotlight */}
-          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all shadow-sm group space-y-2">
+          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm group space-y-2">
             <div className="w-7 h-7 rounded-md bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-amber-300">
               <Eye className="w-3.5 h-3.5" />
             </div>
@@ -260,7 +258,7 @@ export default function LandingPage({ onGetStarted }) {
           </div>
 
           {/* Feature 3: Waterlogged Cavity Detection */}
-          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all shadow-sm group space-y-2">
+          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm group space-y-2">
             <div className="w-7 h-7 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
               <Droplet className="w-3.5 h-3.5" />
             </div>
@@ -276,7 +274,7 @@ export default function LandingPage({ onGetStarted }) {
           </div>
 
           {/* Feature 4: Multi-User Vulnerability Scoring */}
-          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all shadow-sm group space-y-2">
+          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm group space-y-2">
             <div className="w-7 h-7 rounded-md bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <ShieldCheck className="w-3.5 h-3.5" />
             </div>
@@ -292,7 +290,7 @@ export default function LandingPage({ onGetStarted }) {
           </div>
 
           {/* Feature 5: Real-Time Live Dashcam Stream */}
-          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all shadow-sm group space-y-2">
+          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm group space-y-2">
             <div className="w-7 h-7 rounded-md bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
               <Camera className="w-3.5 h-3.5" />
             </div>
@@ -308,7 +306,7 @@ export default function LandingPage({ onGetStarted }) {
           </div>
 
           {/* Feature 6: Official Engineering PDF Dossiers */}
-          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.12)] transition-all shadow-sm group space-y-2">
+          <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm group space-y-2">
             <div className="w-7 h-7 rounded-md bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
               <FileText className="w-3.5 h-3.5" />
             </div>
@@ -347,9 +345,9 @@ export default function LandingPage({ onGetStarted }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             
             {/* Quote Card 1 */}
-            <div className="p-4 rounded-lg bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-amber-400/40 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all shadow-sm">
+            <div className="p-4 rounded-lg bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm">
               <div className="space-y-2">
-                <span className="text-2xl font-quote text-amber-400/70 block leading-none">“</span>
+                <span className="text-2xl font-quote text-amber-400/60 block leading-none">“</span>
                 <p className="font-quote italic text-sm sm:text-base text-[#f4efe6] leading-snug">
                   A developed city is not one where the poor have cars, but where public roads are dignified and safe for every citizen.
                 </p>
@@ -361,9 +359,9 @@ export default function LandingPage({ onGetStarted }) {
             </div>
 
             {/* Quote Card 2 */}
-            <div className="p-4 rounded-lg bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-amber-400/40 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all shadow-sm">
+            <div className="p-4 rounded-lg bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm">
               <div className="space-y-2">
-                <span className="text-2xl font-quote text-amber-400/70 block leading-none">“</span>
+                <span className="text-2xl font-quote text-amber-400/60 block leading-none">“</span>
                 <p className="font-quote italic text-sm sm:text-base text-[#f4efe6] leading-snug">
                   Vision is the art of seeing what is invisible to others — uncovering hidden fissures before they become catastrophe.
                 </p>
@@ -375,9 +373,9 @@ export default function LandingPage({ onGetStarted }) {
             </div>
 
             {/* Quote Card 3 */}
-            <div className="p-4 rounded-lg bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-amber-400/40 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)] transition-all shadow-sm">
+            <div className="p-4 rounded-lg bg-[#141418] border border-[#242429] flex flex-col justify-between hover:border-amber-400/40 hover:shadow-[0_0_12px_rgba(245,158,11,0.1)] transition-all shadow-sm">
               <div className="space-y-2">
-                <span className="text-2xl font-quote text-amber-400/70 block leading-none">“</span>
+                <span className="text-2xl font-quote text-amber-400/60 block leading-none">“</span>
                 <p className="font-quote italic text-sm sm:text-base text-[#f4efe6] leading-snug">
                   Civilization moves forward when the roads we build endure the passage of time without claiming human lives.
                 </p>
@@ -395,7 +393,7 @@ export default function LandingPage({ onGetStarted }) {
       {/* ================= ARCHITECTURE & PIPELINE ================= */}
       <section id="architecture" className="py-10 max-w-5xl mx-auto px-4 space-y-6">
         <div className="text-center max-w-md mx-auto space-y-1">
-          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[9px] font-display font-semibold uppercase tracking-wider shadow-[0_0_12px_rgba(245,158,11,0.2)]">
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[9px] font-display font-semibold uppercase tracking-wider shadow-[0_0_10px_rgba(217,119,6,0.15)]">
             Technical Stack
           </div>
           <h2 className="text-lg sm:text-xl font-syne font-extrabold text-[#f4efe6]">

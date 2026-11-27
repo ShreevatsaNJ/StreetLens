@@ -333,8 +333,8 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
       {/* Top Telemetry & Control Bar */}
       <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429] flex flex-wrap items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#f5ebe1]/10 border border-[#f5ebe1]/25 flex items-center justify-center text-[#f5ebe1]">
-            <Radio className={`w-5 h-5 ${isStreaming ? 'animate-pulse text-[#f5ebe1]' : 'text-zinc-500'}`} />
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-300">
+            <Radio className={`w-5 h-5 ${isStreaming ? 'animate-pulse text-amber-400' : 'text-zinc-500'}`} />
           </div>
           <div>
             <h4 className="font-syne font-bold text-white text-base flex items-center gap-2">
@@ -366,8 +366,8 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <button
               onClick={() => setSensitivity('high')}
               title="Best when pointing at phone screens or in indoor light (0.09 conf)"
-              className={`px-2.5 py-1 rounded-lg font-mono font-bold transition-colors cursor-pointer ${
-                sensitivity === 'high' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'text-[#8a8880] hover:text-white'
+              className={`px-2.5 py-1 rounded-lg font-mono font-bold transition-all cursor-pointer ${
+                sensitivity === 'high' ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] shadow-sm' : 'text-[#8a8880] hover:text-white'
               }`}
             >
               High (Phone)
@@ -375,8 +375,8 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <button
               onClick={() => setSensitivity('normal')}
               title="Standard road camera balance (0.14 conf)"
-              className={`px-2.5 py-1 rounded-lg font-mono font-bold transition-colors cursor-pointer ${
-                sensitivity === 'normal' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'text-[#8a8880] hover:text-white'
+              className={`px-2.5 py-1 rounded-lg font-mono font-bold transition-all cursor-pointer ${
+                sensitivity === 'normal' ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] shadow-sm' : 'text-[#8a8880] hover:text-white'
               }`}
             >
               Normal
@@ -384,8 +384,8 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <button
               onClick={() => setSensitivity('strict')}
               title="High precision / clean road filter (0.20 conf)"
-              className={`px-2.5 py-1 rounded-lg font-mono font-bold transition-colors cursor-pointer ${
-                sensitivity === 'strict' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'text-[#8a8880] hover:text-white'
+              className={`px-2.5 py-1 rounded-lg font-mono font-bold transition-all cursor-pointer ${
+                sensitivity === 'strict' ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] shadow-sm' : 'text-[#8a8880] hover:text-white'
               }`}
             >
               Strict
@@ -407,9 +407,9 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <>
               <button
                 onClick={() => startCamera(facingMode)}
-                className="px-4 py-2.5 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_20px_rgba(245,235,225,0.25)] transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_12px_rgba(217,119,6,0.25)] transition-all flex items-center gap-2 cursor-pointer"
               >
-                <Camera className="w-4 h-4" />
+                <Camera className="w-4 h-4 text-amber-950" />
                 <span>Start Camera Feed</span>
               </button>
               
@@ -501,9 +501,9 @@ export default function LiveCameraFeed({ onSnapshotReady }) {
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 onClick={() => startCamera(facingMode)}
-                className="px-5 py-2.5 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_20px_rgba(245,235,225,0.2)] transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_15px_rgba(217,119,6,0.25)] transition-all flex items-center gap-2 cursor-pointer"
               >
-                <Camera className="w-4 h-4" />
+                <Camera className="w-4 h-4 text-amber-950" />
                 <span>Start Live Camera</span>
               </button>
               <button

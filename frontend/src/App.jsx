@@ -193,7 +193,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0c0e] text-[#f4efe6] flex font-sans selection:bg-[#f5ebe1] selection:text-[#0c0c0e] relative overflow-hidden">
+    <div className="min-h-screen bg-[#0c0c0e] text-[#f4efe6] flex font-sans selection:bg-amber-400/30 selection:text-amber-100 relative overflow-hidden">
       
       {/* Ambient Deep Learning Neural Network Background */}
       <NeuralNetworkBackground opacity={0.55} />
@@ -231,11 +231,11 @@ export default function App() {
               onClick={() => setActiveTab('dashboard')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'dashboard'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
+                  ? 'bg-amber-500/10 text-amber-200 border border-amber-400/30 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.12)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <LayoutDashboard className="w-3.5 h-3.5" />
+              <LayoutDashboard className={`w-3.5 h-3.5 ${activeTab === 'dashboard' ? 'text-amber-400' : ''}`} />
               <span>Dashboard</span>
             </button>
 
@@ -243,11 +243,11 @@ export default function App() {
               onClick={() => setActiveTab('inspector')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'inspector'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
+                  ? 'bg-amber-500/10 text-amber-200 border border-amber-400/30 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.12)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <ScanSearch className="w-3.5 h-3.5" />
+              <ScanSearch className={`w-3.5 h-3.5 ${activeTab === 'inspector' ? 'text-amber-400' : ''}`} />
               <span>Inspection Studio</span>
             </button>
 
@@ -255,7 +255,7 @@ export default function App() {
               onClick={() => setActiveTab('live')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'live'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
+                  ? 'bg-amber-500/10 text-amber-200 border border-amber-400/30 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.12)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
@@ -271,11 +271,11 @@ export default function App() {
               onClick={() => setActiveTab('analytics')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'analytics'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
+                  ? 'bg-amber-500/10 text-amber-200 border border-amber-400/30 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.12)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <BarChart3 className="w-3.5 h-3.5" />
+              <BarChart3 className={`w-3.5 h-3.5 ${activeTab === 'analytics' ? 'text-amber-400' : ''}`} />
               <span>Analytics & Risk</span>
             </button>
 
@@ -283,11 +283,11 @@ export default function App() {
               onClick={() => setActiveTab('reports')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-display font-medium transition-all cursor-pointer ${
                 activeTab === 'reports'
-                  ? 'bg-[#f5ebe1]/12 text-[#f5ebe1] border border-[#f5ebe1]/30 font-semibold shadow-[0_0_12px_rgba(245,235,225,0.08)]'
+                  ? 'bg-amber-500/10 text-amber-200 border border-amber-400/30 font-semibold shadow-[0_0_12px_rgba(245,158,11,0.12)]'
                   : 'text-[#a29f99] hover:text-[#f4efe6] hover:bg-[#1a1a20]'
               }`}
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
+              <FileSpreadsheet className={`w-3.5 h-3.5 ${activeTab === 'reports' ? 'text-amber-400' : ''}`} />
               <span>Audit Reports</span>
             </button>
           </div>
@@ -296,8 +296,8 @@ export default function App() {
         {/* Status Tag (no personal name) */}
         <div className="p-3 border-t border-[#242429]">
           <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[#141418] border border-[#242429] text-[10px] text-[#8a8880] font-mono">
-            <span className="flex items-center gap-1.5 text-[#f5ebe1]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#f5ebe1] animate-pulse"></span>
+            <span className="flex items-center gap-1.5 text-amber-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
               Online
             </span>
             <span>v1.0.4</span>
@@ -327,13 +327,13 @@ export default function App() {
 
           <div className="flex items-center gap-2.5 text-xs">
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#141418] border border-[#242429] text-[#a29f99]">
-              <Cpu className="w-3 h-3 text-[#f5ebe1]" />
+              <Cpu className="w-3 h-3 text-amber-300" />
               <span className="font-mono text-[10px]">YOLOv8s CPU</span>
             </div>
 
             <button
               onClick={() => { setActiveTab('inspector'); setSelectedFile(null); setAnalysisResult(null); }}
-              className="px-3 py-1.5 rounded-lg bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-[11px] shadow-[0_0_15px_rgba(245,235,225,0.2)] transition-all flex items-center gap-1 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] font-syne font-bold text-[11px] shadow-[0_0_12px_rgba(217,119,6,0.25)] transition-all flex items-center gap-1 cursor-pointer"
             >
               <span>+ New Inspection</span>
             </button>
@@ -347,10 +347,10 @@ export default function App() {
           {activeTab === 'dashboard' && (
             <div className="space-y-4">
               {/* Hero Banner */}
-              <div className="p-4 rounded-xl bg-gradient-to-r from-[#141418] via-[#121216] to-[#141418] border border-[#f5ebe1]/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-lg">
+              <div className="p-4 rounded-xl bg-gradient-to-r from-[#141418] via-[#121216] to-[#141418] border border-amber-400/25 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-lg">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#f5ebe1]/10 text-[#f5ebe1] text-[10px] font-display font-semibold mb-1.5 border border-[#f5ebe1]/25">
-                    <Radio className="w-2.5 h-2.5 animate-pulse text-[#f5ebe1]" /> Computer Vision Telemetry Active
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 text-[10px] font-display font-semibold mb-1.5 border border-amber-400/30">
+                    <Radio className="w-2.5 h-2.5 animate-pulse text-amber-400" /> Computer Vision Telemetry Active
                   </div>
                   <h3 className="text-base font-syne font-extrabold text-[#f4efe6]">Urban Infrastructure Safety Monitor</h3>
                   <p className="text-[11px] text-[#a29f99] mt-0.5 max-w-xl font-sans">
@@ -359,10 +359,10 @@ export default function App() {
                 </div>
                 <button
                   onClick={() => setActiveTab('inspector')}
-                  className="px-4 py-2 rounded-lg bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_15px_rgba(245,235,225,0.2)] transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_12px_rgba(217,119,6,0.25)] transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                 >
                   <span>Launch Inspection Studio</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 text-amber-950" />
                 </button>
               </div>
 
@@ -507,7 +507,7 @@ export default function App() {
               <div className="flex items-center justify-between pb-2">
                 <div className="flex items-center gap-2 p-1 rounded-xl bg-[#141418] border border-[#242429] text-xs">
                   <button
-                    className="px-3.5 py-1.5 rounded-lg bg-[#f5ebe1]/15 text-[#f5ebe1] font-display font-bold border border-[#f5ebe1]/30"
+                    className="px-3.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-200 font-display font-bold border border-amber-400/30"
                   >
                     📁 File & Video Ingestion
                   </button>
@@ -528,27 +528,35 @@ export default function App() {
               {/* Stepper */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                 <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
-                  selectedFile ? 'bg-[#f5ebe1]/10 border-[#f5ebe1]/40 text-[#f5ebe1]' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
+                  selectedFile ? 'bg-amber-500/10 border-amber-400/40 text-amber-200' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
                 }`}>
-                  <span className="w-5 h-5 rounded-full bg-[#202026] text-[#f4efe6] flex items-center justify-center font-syne font-bold text-[10px]">1</span>
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center font-syne font-bold text-[10px] ${
+                    selectedFile ? 'bg-amber-400 text-[#0c0c0e]' : 'bg-[#202026] text-[#f4efe6]'
+                  }`}>1</span>
                   <span className="font-display font-semibold">Media Ingestion</span>
                 </div>
                 <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
-                  isProcessing ? 'bg-[#f5ebe1]/10 border-[#f5ebe1]/40 text-[#f5ebe1] animate-pulse' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
+                  isProcessing ? 'bg-amber-500/10 border-amber-400/40 text-amber-200 animate-pulse' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
                 }`}>
-                  <span className="w-5 h-5 rounded-full bg-[#202026] text-[#f4efe6] flex items-center justify-center font-syne font-bold text-[10px]">2</span>
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center font-syne font-bold text-[10px] ${
+                    isProcessing ? 'bg-amber-400 text-[#0c0c0e]' : 'bg-[#202026] text-[#f4efe6]'
+                  }`}>2</span>
                   <span className="font-display font-semibold">CV & Enhancement</span>
                 </div>
                 <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
-                  analysisResult ? 'bg-[#f5ebe1]/10 border-[#f5ebe1]/40 text-[#f5ebe1]' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
+                  analysisResult ? 'bg-amber-500/10 border-amber-400/40 text-amber-200' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
                 }`}>
-                  <span className="w-5 h-5 rounded-full bg-[#202026] text-[#f4efe6] flex items-center justify-center font-syne font-bold text-[10px]">3</span>
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center font-syne font-bold text-[10px] ${
+                    analysisResult ? 'bg-amber-400 text-[#0c0c0e]' : 'bg-[#202026] text-[#f4efe6]'
+                  }`}>3</span>
                   <span className="font-display font-semibold">Bokeh Spotlight</span>
                 </div>
                 <div className={`p-3 rounded-xl border flex items-center gap-2.5 ${
-                  analysisResult ? 'bg-[#f5ebe1]/10 border-[#f5ebe1]/40 text-[#f5ebe1]' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
+                  analysisResult ? 'bg-amber-500/10 border-amber-400/40 text-amber-200' : 'bg-[#141418] border-[#242429] text-[#8a8880]'
                 }`}>
-                  <span className="w-5 h-5 rounded-full bg-[#202026] text-[#f4efe6] flex items-center justify-center font-syne font-bold text-[10px]">4</span>
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center font-syne font-bold text-[10px] ${
+                    analysisResult ? 'bg-amber-400 text-[#0c0c0e]' : 'bg-[#202026] text-[#f4efe6]'
+                  }`}>4</span>
                   <span className="font-display font-semibold">Report Generated</span>
                 </div>
               </div>
@@ -661,7 +669,7 @@ export default function App() {
                           type="button"
                           onClick={() => setSensitivity(0.015)}
                           className={`py-1 text-[10px] font-syne font-semibold rounded transition-all cursor-pointer ${
-                            sensitivity === 0.015 ? 'bg-[#f5ebe1] text-[#0c0c0e] shadow-sm' : 'text-[#8a8880] hover:text-[#f4efe6]'
+                            sensitivity === 0.015 ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] font-bold shadow-sm' : 'text-[#8a8880] hover:text-[#f4efe6]'
                           }`}
                         >
                           High
@@ -670,7 +678,7 @@ export default function App() {
                           type="button"
                           onClick={() => setSensitivity(0.03)}
                           className={`py-1 text-[10px] font-syne font-semibold rounded transition-all cursor-pointer ${
-                            sensitivity === 0.03 ? 'bg-[#f5ebe1] text-[#0c0c0e] shadow-sm' : 'text-[#8a8880] hover:text-[#f4efe6]'
+                            sensitivity === 0.03 ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] font-bold shadow-sm' : 'text-[#8a8880] hover:text-[#f4efe6]'
                           }`}
                         >
                           Balanced
@@ -679,7 +687,7 @@ export default function App() {
                           type="button"
                           onClick={() => setSensitivity(0.05)}
                           className={`py-1 text-[10px] font-syne font-semibold rounded transition-all cursor-pointer ${
-                            sensitivity === 0.05 ? 'bg-[#f5ebe1] text-[#0c0c0e] shadow-sm' : 'text-[#8a8880] hover:text-[#f4efe6]'
+                            sensitivity === 0.05 ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] font-bold shadow-sm' : 'text-[#8a8880] hover:text-[#f4efe6]'
                           }`}
                         >
                           Strict
@@ -694,7 +702,7 @@ export default function App() {
                   <button
                     onClick={handleUploadAndAnalyze}
                     disabled={!selectedFile || isProcessing}
-                    className="mt-6 w-full py-3 px-4 rounded-xl bg-[#f5ebe1] hover:bg-white disabled:bg-[#1c1c22] disabled:text-[#6a6860] font-syne font-bold text-[#0c0c0e] text-sm shadow-[0_0_20px_rgba(245,235,225,0.25)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                    className="mt-6 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 disabled:from-[#1c1c22] disabled:to-[#1c1c22] disabled:text-[#6a6860] font-syne font-bold text-[#0c0c0e] text-sm shadow-[0_0_15px_rgba(217,119,6,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                   >
                     {isProcessing ? (
                       <>
@@ -704,7 +712,7 @@ export default function App() {
                     ) : (
                       <>
                         <span>Inspect Road Surface</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-4 h-4 text-amber-950" />
                       </>
                     )}
                   </button>
@@ -713,8 +721,8 @@ export default function App() {
 
               {/* Status & Alerts */}
               {isProcessing && (
-                <div className="p-4 rounded-xl bg-[#f5ebe1]/10 border border-[#f5ebe1]/30 flex items-center gap-3 text-xs font-semibold text-[#f5ebe1] animate-pulse">
-                  <RefreshCw className="w-4 h-4 animate-spin text-[#f5ebe1]" />
+                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-400/30 flex items-center gap-3 text-xs font-semibold text-amber-200 animate-pulse">
+                  <RefreshCw className="w-4 h-4 animate-spin text-amber-400" />
                   <span>{processingStep}</span>
                 </div>
               )}
@@ -783,8 +791,8 @@ export default function App() {
                           {analysisResult.media_urls?.video && (
                             <button
                               onClick={() => setActiveView('video')}
-                              className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
-                                activeView === 'video' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'bg-[#1e1e24] text-[#d6d0c7]'
+                              className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                                activeView === 'video' ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] shadow-sm' : 'bg-[#1e1e24] text-[#d6d0c7]'
                               }`}
                             >
                               <Video className="w-3.5 h-3.5" />
@@ -793,16 +801,16 @@ export default function App() {
                           )}
                           <button
                             onClick={() => setActiveView('slider')}
-                            className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-colors cursor-pointer ${
-                              activeView === 'slider' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'bg-[#1e1e24] text-[#d6d0c7]'
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all cursor-pointer ${
+                              activeView === 'slider' ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] shadow-sm' : 'bg-[#1e1e24] text-[#d6d0c7]'
                             }`}
                           >
                             {analysisResult.media_urls?.video ? 'Keyframe Slider' : 'Before / After Slider'}
                           </button>
                           <button
                             onClick={() => setActiveView('annotated')}
-                            className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-colors cursor-pointer ${
-                              activeView === 'annotated' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'bg-[#1e1e24] text-[#d6d0c7]'
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all cursor-pointer ${
+                              activeView === 'annotated' ? 'bg-gradient-to-r from-[#fde68a] to-[#d97706] text-[#0c0c0e] shadow-sm' : 'bg-[#1e1e24] text-[#d6d0c7]'
                             }`}
                           >
                             {analysisResult.media_urls?.video ? 'Spotlight Keyframe' : 'Full Spotlight View'}
@@ -938,7 +946,7 @@ export default function App() {
                                       #{d.rank}
                                     </span>
                                     {isSelected && (
-                                      <span className="ml-2 px-1.5 py-0.5 rounded text-[8px] font-mono font-extrabold bg-[#f5ebe1] text-[#0c0c0e]">
+                                      <span className="ml-2 px-1.5 py-0.5 rounded text-[8px] font-mono font-extrabold bg-amber-400 text-[#0c0c0e]">
                                         PINNED
                                       </span>
                                     )}
@@ -1001,9 +1009,9 @@ export default function App() {
                         </a>
                         <a
                           href={`${API_BASE}/api/report/pdf/${analysisResult.session_id}`}
-                          className="px-3.5 py-1.5 rounded-lg bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] text-[11px] font-syne font-bold flex items-center gap-1 shadow-[0_0_15px_rgba(245,235,225,0.2)] transition-all"
+                          className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] text-[11px] font-syne font-bold flex items-center gap-1 shadow-[0_0_12px_rgba(217,119,6,0.25)] transition-all"
                         >
-                          <Download className="w-3 h-3" />
+                          <Download className="w-3 h-3 text-amber-950" />
                           <span>Download PDF Report</span>
                         </a>
                       </div>
@@ -1317,7 +1325,7 @@ export default function App() {
                   </p>
                   <button
                     onClick={() => setActiveTab('inspector')}
-                    className="px-5 py-2.5 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_20px_rgba(245,235,225,0.2)] cursor-pointer"
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#fde68a] to-[#d97706] hover:brightness-110 text-[#0c0c0e] font-syne font-bold text-xs shadow-[0_0_15px_rgba(217,119,6,0.25)] cursor-pointer transition-all"
                   >
                     Go to Inspection Studio
                   </button>
