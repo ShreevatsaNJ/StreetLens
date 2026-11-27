@@ -1,8 +1,9 @@
 import React from 'react';
 import { 
   ArrowRight, Sparkles, Camera, Eye, Droplet, ShieldCheck, 
-  MapPin, FileText, Quote
+  FileText, Quote
 } from 'lucide-react';
+import NeuralNetworkBackground from './NeuralNetworkBackground';
 
 const ROAD_TELEMETRY_ITEMS = [
   {
@@ -121,11 +122,14 @@ function CompactRoadTicker() {
 
 export default function LandingPage({ onGetStarted }) {
   return (
-    <div className="min-h-screen bg-[#0c0c0e] text-[#f4efe6] font-sans selection:bg-[#f5ebe1] selection:text-[#0c0c0e] flex flex-col">
+    <div className="min-h-screen bg-[#0c0c0e] text-[#f4efe6] font-sans selection:bg-[#f5ebe1] selection:text-[#0c0c0e] flex flex-col relative overflow-hidden">
       
-      {/* ================= TOP NAVBAR ================= */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#0c0c0e]/85 border-b border-[#242429]">
-        <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
+      {/* Ambient Deep Learning Neural Network Background */}
+      <NeuralNetworkBackground opacity={0.65} />
+
+      {/* ================= TOP NAVBAR (Seamlessly blended, zero opaque separation) ================= */}
+      <header className="sticky top-0 z-50 bg-transparent transition-all">
+        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
           
           {/* Logo */}
           <div className="flex items-center gap-2.5">
@@ -279,19 +283,19 @@ export default function LandingPage({ onGetStarted }) {
             </div>
           </div>
 
-          {/* Feature 5: Geospatial Hazard Map */}
+          {/* Feature 5: Real-Time Live Dashcam HUD */}
           <div className="p-3.5 rounded-lg bg-[#141418] border border-[#242429] hover:border-[#f5ebe1]/30 transition-all shadow-sm group space-y-2">
-            <div className="w-7 h-7 rounded-md bg-[#f5ebe1]/10 border border-[#f5ebe1]/30 flex items-center justify-center text-[#f5ebe1]">
-              <MapPin className="w-3.5 h-3.5" />
+            <div className="w-7 h-7 rounded-md bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+              <Camera className="w-3.5 h-3.5" />
             </div>
             <h3 className="font-syne font-bold text-[#f4efe6] text-xs">
-              Geospatial Hazard Map
+              Live Dashcam &amp; Camera Stream
             </h3>
             <p className="text-[10px] text-[#a29f99] leading-relaxed">
-              Every captured scan is geo-referenced with EXIF GPS or manual coordinates. Interactive CartoDB dark-matter map renders severity-coded pulsing hazard pins across the city.
+              Real-time road damage detection through webcams and phone cameras. Features instant reticle overlays, adaptive sensitivity presets, and audible hazard alerts.
             </p>
-            <div className="pt-0.5 flex items-center gap-1 text-[9px] font-mono text-[#f5ebe1]">
-              <span>OpenStreetMap & Leaflet</span>
+            <div className="pt-0.5 flex items-center gap-1 text-[9px] font-mono text-rose-400">
+              <span>Sub-50ms inference loop</span>
             </div>
           </div>
 

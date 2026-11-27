@@ -8,22 +8,24 @@ SEVERITY_COLORS = {
     "LOW": (50, 205, 50),        # Vibrant Green
 }
 
-def apply_bokeh_annotation(image: np.ndarray, ranked_defects: list) -> np.ndarray:
+def apply_bokeh_annotation(image: np.ndarray, ranked_defects: list, draw_boxes: bool = False) -> np.ndarray:
     """
-    Applies a Bokeh / Depth-of-Field spotlight effect:
-    1. Creates a softly blurred & slightly dimmed version of the entire background.
-    2. Cuts out and keeps the detected anomaly regions in tack-sharp original focus.
-    3. Draws sleek glowing bounding boxes and ranking tags (#1 POTHOLE, etc.).
+    Applies an optical Bokeh / Depth-of-Field spotlight effect:
+    1. Creates a softly blurred & slightly dimmed version of the entire background asphalt.
+    2. Cuts out and preserves the detected anomaly regions in tack-sharp original focus.
+    3. If draw_boxes=True (for static PDF exports), draws burned-in bounding boxes and tags.
+       If draw_boxes=False (default for interactive Web UI), keeps the spotlight image clean
+       so React can dynamically highlight, focus, or make unselected anomalies translucent on click.
     """
     h, w = image.shape[:2]
     
     if not ranked_defects:
-        # If clean road with no defects, return original image with a subtle 'ROAD STATUS: GOOD' watermark
         clean_img = image.copy()
-        cv2.putText(
-            clean_img, "ROAD STATUS: GOOD (NO ANOMALIES DETECTED)", 
-            (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (50, 205, 50), 2, cv2.LINE_AA
-        )
+        if draw_boxes:
+            cv2.putText(
+                clean_img, "ROAD STATUS: GOOD (NO ANOMALIES DETECTED)", 
+                (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (50, 205, 50), 2, cv2.LINE_AA
+            )
         return clean_img
 
     # 1. Create blurred bokeh background (Gaussian blur + subtle dimming)
@@ -40,6 +42,9 @@ def apply_bokeh_annotation(image: np.ndarray, ranked_defects: list) -> np.ndarra
         
         # Overlay original sharp crop
         annotated[y1:y2, x1:x2] = image[y1:y2, x1:x2]
+
+    if not draw_boxes:
+        return annotated
 
     # 3. Draw sleek bounding boxes, rank badges, and waterlogged flags
     for defect in ranked_defects:

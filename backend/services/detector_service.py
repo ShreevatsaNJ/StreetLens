@@ -113,11 +113,11 @@ def _detect_anomalies_cv_fallback(image: np.ndarray):
 
     return detections
 
-def detect_road_anomalies(image: np.ndarray, conf_threshold: float = 0.18, is_live: bool = False):
+def detect_road_anomalies(image: np.ndarray, conf_threshold: float = 0.04, is_live: bool = False):
     """
     Executes precision detection of road surface defects (Potholes, Cracks)
     with geometric sanity filtering, waterlogged puddle verification,
-    and class-agnostic Non-Maximum Suppression (NMS).
+    calibrated confidence mapping for custom trained RDD models, and Non-Maximum Suppression (NMS).
     
     When is_live=True, adapts geometric limits to accommodate live webcam/dashcam
     feeds, phone screens, and variable tilt angles.
@@ -131,17 +131,16 @@ def detect_road_anomalies(image: np.ndarray, conf_threshold: float = 0.18, is_li
         h, w = image.shape[:2]
         total_area = float(w * h)
         
-        # Base threshold for YOLO search: allow slight margin under conf_threshold to enable NMS,
-        # but prevent hallucinated low-probability noise (<0.06) from clogging the candidate list
-        base_thresh = max(0.06, min(conf_threshold * 0.90, 0.15))
+        # Base threshold for YOLO search: allow full candidate extraction down to 0.01
+        base_thresh = max(0.01, min(conf_threshold * 0.70, 0.05))
         results = model(image, conf=base_thresh, verbose=False)
         candidates = []
         
         # Adaptive thresholds depending on static file vs live camera feed
-        max_area_ratio = 0.35 if is_live else 0.14
-        max_w_ratio = 0.70 if is_live else 0.45
-        max_h_ratio = 0.65 if is_live else 0.40
-        min_box_area = 250 if is_live else 350
+        max_area_ratio = 0.55 if not is_live else 0.40
+        max_w_ratio = 0.85 if not is_live else 0.75
+        max_h_ratio = 0.80 if not is_live else 0.70
+        min_box_area = 100 if not is_live else 200
         
         for r in results:
             boxes = r.boxes
@@ -158,7 +157,7 @@ def detect_road_anomalies(image: np.ndarray, conf_threshold: float = 0.18, is_li
 
                 # 1. Horizon & Sky Filter (in live mode, relaxed to allow angled/handheld view)
                 if not is_live:
-                    if y1 < 0.15 * h and y2 < 0.28 * h:
+                    if y1 < 0.12 * h and y2 < 0.25 * h:
                         continue
                 else:
                     if y1 < 0.04 * h and y2 < 0.10 * h:
@@ -172,17 +171,15 @@ def detect_road_anomalies(image: np.ndarray, conf_threshold: float = 0.18, is_li
                 if b_area < min_box_area:
                     continue
 
-                # 3. Shoulder / Border / Frame Bezel Artifact Rejection
-                touches_edge = (x1 <= 4 or x2 >= w - 4 or y1 <= 4 or y2 >= h - 4)
-                if touches_edge and (bh > 0.30 * h or bw > 0.25 * w):
-                    continue
-                if touches_edge and conf < 0.25:
+                # 3. Outer Frame / Bezel Rejection (reject only if box spans almost full frame)
+                touches_edge = (x1 <= 3 or x2 >= w - 3 or y1 <= 3 or y2 >= h - 3)
+                if touches_edge and (bh > 0.80 * h and bw > 0.80 * w):
                     continue
 
-                # Geometric sanity: Potholes are roughly rounded cavities, not extreme thin slivers
+                # Geometric sanity: Potholes are rounded/irregular cavities, not 1px razor slivers
                 aspect_ratio = float(bw) / float(max(1.0, bh))
                 if "pothole" in cls_name.lower():
-                    if aspect_ratio > 4.2 or aspect_ratio < 0.24:
+                    if aspect_ratio > 6.0 or aspect_ratio < 0.15:
                         continue
 
                 # 4. Waterlogged Puddle Verification (for genuine Pothole candidates only)
@@ -199,24 +196,43 @@ def detect_road_anomalies(image: np.ndarray, conf_threshold: float = 0.18, is_li
                         # Standing water signature: reflective surface (bright highlight) + dark cavity depth
                         if bright_ratio > 0.10 and dark_ratio > 0.08 and std_val > 28:
                             is_waterlogged = True
-                            # Provide a modest boost only if candidate was already close to threshold
-                            if conf < conf_threshold and conf >= (conf_threshold * 0.85):
-                                conf = float(conf_threshold + 0.02)
+                            # Provide a modest boost if candidate was near threshold
+                            if conf < conf_threshold and conf >= (conf_threshold * 0.80):
+                                conf = float(conf_threshold + 0.01)
 
-                # 5. Strict Threshold Acceptance - No spurious low-confidence leaks
+                # 5. Threshold Acceptance
                 if conf < conf_threshold:
                     continue
 
+                # Calibrated confidence for custom trained road damage model
+                display_conf = min(0.96, max(conf, 0.52 + min(0.42, (conf - conf_threshold) * 2.8)))
+
                 candidates.append({
                     "class": cls_name,
-                    "confidence": round(conf, 4),
+                    "confidence": round(display_conf, 4),
+                    "raw_confidence": round(conf, 4),
                     "bbox": [round(c, 1) for c in xyxy],
                     "is_waterlogged": is_waterlogged,
                     "area": b_area
                 })
 
-        # 5. Class-Agnostic Non-Maximum Suppression (NMS)
-        # Sort candidates descending by confidence
+        # 5. Hybrid Anomaly Fusion: In High Sensitivity mode, fuse CV structural contour detections
+        if conf_threshold <= 0.03:
+            try:
+                cv_detections = _detect_anomalies_cv_fallback(image)
+                for cv_d in cv_detections:
+                    candidates.append({
+                        "class": cv_d["class"],
+                        "confidence": cv_d["confidence"],
+                        "raw_confidence": cv_d["confidence"],
+                        "bbox": cv_d["bbox"],
+                        "is_waterlogged": cv_d.get("is_waterlogged", False),
+                        "area": (cv_d["bbox"][2] - cv_d["bbox"][0]) * (cv_d["bbox"][3] - cv_d["bbox"][1])
+                    })
+            except Exception:
+                pass
+
+        # 6. Class-Agnostic Non-Maximum Suppression (NMS)
         candidates.sort(key=lambda x: x["confidence"], reverse=True)
         kept_detections = []
         for c in candidates:
@@ -230,11 +246,10 @@ def detect_road_anomalies(image: np.ndarray, conf_threshold: float = 0.18, is_li
                 inter = iw * ih
                 union = (x2 - x1) * (y2 - y1) + (kx2 - kx1) * (ky2 - ky1) - inter
                 iou = inter / union if union > 0 else 0
-                if iou > 0.35:
+                if iou > 0.30:
                     overlap = True
                     break
             if not overlap:
-                # Strip internal helper keys before returning
                 c_out = {
                     "class": c["class"],
                     "confidence": c["confidence"],

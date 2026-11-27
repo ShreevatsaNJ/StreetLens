@@ -28,10 +28,11 @@ export default function DefectOverlays({
         const width = Math.max(3, Math.min(100 - left, ((x2 - x1) / imgW) * 100));
         const height = Math.max(3, Math.min(100 - top, ((y2 - y1) / imgH) * 100));
 
-        const isHovered = hoveredRank === d.rank;
         const isSelected = selectedRank === d.rank;
+        const isHovered = hoveredRank === d.rank;
         const isActive = isSelected || isHovered;
-        const isDimmed = activeRank !== null && !isActive;
+        const hasSelection = selectedRank !== null;
+        const isDimmed = hasSelection && !isSelected;
 
         // Color coding by severity & waterlogged status
         let accentColor = '#f5ebe1'; // warm ivory
@@ -53,8 +54,14 @@ export default function DefectOverlays({
         return (
           <div
             key={d.rank}
-            className={`absolute pointer-events-auto transition-all duration-150 cursor-pointer ${
-              isActive ? 'z-40 scale-[1.01]' : isDimmed ? 'opacity-25 z-10' : 'opacity-85 hover:opacity-100 z-20'
+            className={`absolute pointer-events-auto transition-all duration-300 cursor-pointer ${
+              isSelected 
+                ? 'z-40 scale-[1.02] opacity-100' 
+                : isDimmed 
+                ? 'z-10 opacity-15 hover:opacity-60' 
+                : isHovered 
+                ? 'z-30 opacity-100 scale-[1.01]' 
+                : 'z-20 opacity-90 hover:opacity-100'
             }`}
             style={{
               left: `${left}%`,
@@ -64,6 +71,12 @@ export default function DefectOverlays({
             }}
             onMouseEnter={() => onHover(d.rank)}
             onMouseLeave={() => onHover(null)}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+            }}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+            }}
             onClick={(e) => {
               e.stopPropagation();
               onSelect(d.rank);
@@ -71,32 +84,44 @@ export default function DefectOverlays({
           >
             {/* Box Frame & Glow */}
             <div
-              className={`w-full h-full rounded-md transition-all duration-200 ${
+              className={`w-full h-full rounded-md transition-all duration-300 ${
                 isSelected
-                  ? 'border-2 ring-2 ring-white/90 bg-[#f5ebe1]/15'
+                  ? 'border-2 ring-4 ring-white/90 bg-white/15'
+                  : isDimmed
+                  ? 'border border-dashed border-white/20 bg-black/45 backdrop-blur-[2px]'
                   : isHovered
-                  ? 'border-2 bg-[#f5ebe1]/10'
+                  ? 'border-2 ring-2 ring-white/60 bg-[#f5ebe1]/15'
                   : 'border border-dashed bg-black/15'
               }`}
               style={{
-                borderColor: isSelected ? '#ffffff' : accentColor,
-                boxShadow: isActive
-                  ? `0 0 20px ${glowColor}, inset 0 0 12px ${glowColor.replace('0.8', '0.25')}`
+                borderColor: isSelected ? '#ffffff' : (isDimmed ? 'rgba(255,255,255,0.25)' : accentColor),
+                boxShadow: isSelected
+                  ? `0 0 25px ${glowColor}, inset 0 0 15px ${glowColor.replace('0.8', '0.35')}`
+                  : isHovered
+                  ? `0 0 15px ${glowColor}`
                   : 'none'
               }}
             >
-              {/* Corner HUD Reticles */}
-              <span className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
-              <span className="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
-              <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
+              {/* Corner HUD Reticles (only shown when focused, hovered, or normal state) */}
+              {(!isDimmed || isHovered) && (
+                <>
+                  <span className="absolute -top-1 -left-1 w-2.5 h-2.5 border-t-2 border-l-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 border-t-2 border-r-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
+                  <span className="absolute -bottom-1 -left-1 w-2.5 h-2.5 border-b-2 border-l-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
+                  <span className="absolute -bottom-1 -right-1 w-2.5 h-2.5 border-b-2 border-r-2" style={{ borderColor: isSelected ? '#ffffff' : accentColor }} />
+                </>
+              )}
             </div>
 
             {/* Pill Tag Badge */}
             <div
               className={`absolute -top-6 left-0 whitespace-nowrap px-2 py-0.5 rounded text-[8px] font-mono font-bold tracking-tight transition-all flex items-center gap-1.5 shadow-xl ${
-                isActive
-                  ? 'bg-[#0c0c0e] text-white border border-white/60 scale-105 z-50'
+                isSelected
+                  ? 'bg-black text-white border-2 border-white scale-110 z-50 shadow-2xl'
+                  : isDimmed
+                  ? 'opacity-0 hover:opacity-100 bg-[#0c0c0e]/85 text-[#8a8880] border border-white/10'
+                  : isHovered
+                  ? 'bg-[#0c0c0e] text-white border border-white/70 scale-105 z-40'
                   : 'bg-[#0c0c0e]/90 backdrop-blur-md text-[#d6d0c7] border border-white/20'
               }`}
               style={{
@@ -121,8 +146,8 @@ export default function DefectOverlays({
               )}
 
               {isSelected && (
-                <span className="px-1 py-0.2 rounded bg-emerald-500 text-black font-extrabold text-[7px]">
-                  PINNED
+                <span className="px-1.5 py-0.2 rounded bg-white text-black font-extrabold text-[7.5px] shadow-sm animate-pulse">
+                  FOCUSED
                 </span>
               )}
             </div>

@@ -41,6 +41,10 @@ def analyze_session(session_id):
     try:
         timeline_events = []
         
+        # Dynamic confidence threshold support (default calibrated to 0.04 for custom trained road model)
+        conf_param = request.args.get("conf", type=float) or (request.is_json and request.json.get("conf"))
+        conf_threshold = float(conf_param) if conf_param is not None else 0.04
+
         if session.media_type == "image":
             raw_img = cv2.imread(str(raw_path))
             if raw_img is None:
@@ -53,8 +57,8 @@ def analyze_session(session_id):
             cv2.imwrite(str(enhanced_path), enhanced_img)
             session.enhanced_file_path = str(enhanced_path)
 
-            # 2. AI Road Anomaly Detection (Run directly on sharp uncorrupted camera capture)
-            raw_detections = detect_road_anomalies(raw_img, conf_threshold=0.18)
+            # 2. AI Road Anomaly Detection (Run custom trained YOLOv8 model)
+            raw_detections = detect_road_anomalies(raw_img, conf_threshold=conf_threshold)
 
             # 3. Defect Ranking & Risk Calculation
             ranked_defects, summary = rank_and_analyze_defects(raw_detections, raw_img)
@@ -96,7 +100,7 @@ def analyze_session(session_id):
                     frame_h, frame_w = frame_img.shape[:2]
                 
                 # Execute YOLO anomaly detection with geometric & NMS filters
-                detections = detect_road_anomalies(frame_img, conf_threshold=0.18)
+                detections = detect_road_anomalies(frame_img, conf_threshold=conf_threshold)
                 
                 # Rank detections for this frame
                 frame_ranked, frame_summary = rank_and_analyze_defects(detections, frame_img)

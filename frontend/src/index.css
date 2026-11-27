@@ -90,15 +90,3 @@ body {
 .animate-road-marquee:hover {
   animation-play-state: paused;
 }
-
-/* Dark mode for Leaflet OSM tiles — invert + warm hue shift to match obsidian theme */
-.hazard-map-dark .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(1.1) saturate(0.3);
-}
-/* Keep markers/popups/overlays normal (un-invert them) */
-.hazard-map-dark .leaflet-marker-pane,
-.hazard-map-dark .leaflet-popup-pane,
-.hazard-map-dark .leaflet-overlay-pane,
-.hazard-map-dark .leaflet-shadow-pane {
-  filter: none;
-}
