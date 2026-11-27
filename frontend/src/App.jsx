@@ -1025,14 +1025,14 @@ export default function App() {
           {/* ================= TAB 5: ANALYTICS & RISK ================= */}
           {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#242429]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#242429]">
                 <div>
                   <h3 className="text-base font-syne font-bold text-[#f4efe6] flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-amber-400" />
-                    <span>Municipal Road Infrastructure & Risk Intelligence</span>
+                    <Activity className="w-4 h-4 text-[#f5ebe1]" />
+                    <span>Road Safety & Anomaly Analytics</span>
                   </h3>
                   <p className="text-xs text-[#a29f99] font-sans">
-                    ASTM D6433 Pavement Condition Analysis, Multi-Vector Hazard Radar, Financial Remediation Projections & Commuter Vulnerability.
+                    Data-driven analysis of road health, defect distribution, commuter risk factors, and recommended maintenance.
                   </p>
                 </div>
                 {analysisResult && (
@@ -1043,303 +1043,150 @@ export default function App() {
               </div>
 
               {analysisResult && analysisResult.chart_data ? (() => {
-                const pci = analysisResult.summary?.pci || {
-                  score: Math.max(5, 100 - ((analysisResult.summary?.severity_breakdown?.high || 0) * 18 + (analysisResult.summary?.total_defects || 0) * 8)),
-                  rating: (analysisResult.summary?.road_condition === 'CRITICAL' ? 'Very Poor' : (analysisResult.summary?.road_condition === 'POOR' ? 'Poor' : 'Fair')),
-                  color: (analysisResult.summary?.road_condition === 'CRITICAL' ? '#ef4444' : (analysisResult.summary?.road_condition === 'POOR' ? '#f97316' : '#f59e0b')),
-                  integrity_status: 'Severe structural distress; prompt remediation needed',
-                  standard: 'ASTM D6433 / US Army Corps Protocol'
+                const s = analysisResult.summary || {};
+                const totalDefects = s.total_defects ?? (analysisResult.ranked_defects?.length || 0);
+                const damageDensity = s.damage_density_pct ?? 0;
+                const roadCondition = s.road_condition || 'FAIR';
+                const repairPriority = s.repair_priority ?? 2;
+                
+                const potholeCount = s.pothole_count ?? (analysisResult.ranked_defects?.filter(d => d.class?.toLowerCase().includes('pothole')).length || 0);
+                const crackCount = s.crack_count ?? (totalDefects - potholeCount);
+                const hasWaterlogged = s.has_waterlogged ?? analysisResult.ranked_defects?.some(d => d.is_waterlogged);
+
+                // Road Health (0-100%) - Sensible, easily explainable score
+                const roadHealth = s.road_health || {
+                  score: Math.max(5, Math.round(100 - (damageDensity * 0.8 + ((s.severity_breakdown?.high || 0) * 12) + ((s.severity_breakdown?.medium || 0) * 6)))),
+                  status: roadCondition === 'CRITICAL' ? 'Critical' : (roadCondition === 'POOR' ? 'Poor' : (roadCondition === 'FAIR' ? 'Fair' : 'Good')),
+                  color: roadCondition === 'CRITICAL' ? '#ef4444' : (roadCondition === 'POOR' ? '#f97316' : (roadCondition === 'FAIR' ? '#f59e0b' : '#10b981'))
                 };
 
-                const repairEstimate = analysisResult.summary?.repair_estimate || {
-                  damaged_area_sqm: Math.max(0.5, ((analysisResult.summary?.damage_density_pct || 1) / 100) * 45).toFixed(1),
-                  damaged_area_sqft: (Math.max(0.5, ((analysisResult.summary?.damage_density_pct || 1) / 100) * 45) * 10.764).toFixed(1),
-                  cost_inr: Math.max(3500, ((analysisResult.summary?.severity_breakdown?.high || 1) * 2800) + ((analysisResult.summary?.severity_breakdown?.medium || 0) * 1500) + 4000),
-                  cost_usd: Math.round(Math.max(3500, ((analysisResult.summary?.severity_breakdown?.high || 1) * 2800) + 4000) / 86),
-                  treatment: 'Full-Depth Emergency Patching (VG-30 Hot Mix) & Heavy Vibratory Compaction',
-                  urgency: 'Emergency Intervention',
-                  urgency_window: 'Within 24–48 Hours',
-                  urgency_code: 'CRITICAL_SLA',
-                  materials: ['Dense Bituminous Macadam (DBM)', 'Rapid Setting Tack Coat (RS-1)', 'Polymer Modified Bitumen (PMB-40)'],
-                  equipment: ['Pneumatic / Vibratory Compactor (10–12 Ton)', 'Compressed Air Lance', 'Tack Distributor'],
-                  compliance_standard: 'IRC:82-2015 & MORTH Section 3004'
-                };
+                const summaryInsight = s.summary_insight || 
+                  `Detected ${totalDefects} road anomalies (${potholeCount} pothole${potholeCount !== 1 ? 's' : ''}, ${crackCount} crack${crackCount !== 1 ? 's' : ''}) covering ${damageDensity}% of the road surface. Overall road health is rated at ${roadHealth.score}% (${roadHealth.status}). Repair priority is Level ${repairPriority}/5.`;
 
-                const riskRadar = (analysisResult.chart_data?.risk_radar && analysisResult.chart_data.risk_radar.length > 0)
-                  ? analysisResult.chart_data.risk_radar
-                  : [
-                      { subject: 'Structural Damage', value: 85, fullMark: 100 },
-                      { subject: 'Vehicle Suspension', value: 92, fullMark: 100 },
-                      { subject: 'Loss of Control', value: 96, fullMark: 100 },
-                      { subject: 'Hydroplaning', value: 90, fullMark: 100 },
-                      { subject: 'Pedestrian Safety', value: 75, fullMark: 100 },
-                      { subject: 'Water Infiltration', value: 88, fullMark: 100 },
-                    ];
-
-                const deteriorationForecast = (analysisResult.chart_data?.deterioration_forecast && analysisResult.chart_data.deterioration_forecast.length > 0)
-                  ? analysisResult.chart_data.deterioration_forecast
-                  : [
-                      { timeline: 'Current', untreated: pci.score, repaired: pci.score, benchmark: 85 },
-                      { timeline: 'Day 15', untreated: Math.max(5, pci.score - 12), repaired: 94, benchmark: 85 },
-                      { timeline: 'Day 30', untreated: Math.max(5, pci.score - 28), repaired: 92, benchmark: 85 },
-                      { timeline: 'Day 60', untreated: Math.max(5, pci.score - 52), repaired: 90, benchmark: 85 },
-                      { timeline: 'Day 90', untreated: Math.max(5, pci.score - 70), repaired: 88, benchmark: 85 },
-                    ];
-
-                const detailedUserImpact = analysisResult.summary?.detailed_user_impact || {
-                  two_wheeler: {
-                    user: 'Two-Wheelers & Motorcyclists',
-                    risk_score: analysisResult.summary?.user_risks?.two_wheeler || 95,
-                    vulnerability: 'CRITICAL',
-                    color: '#ef4444',
-                    key_hazards: [
-                      'Violent front-fork compression and sudden handlebar kickback causing loss of balance',
-                      'Alloy wheel rim deformation or crack, leading to instantaneous tire deflation',
-                      'Waterlogged potholes conceal cavity depth, preventing evasive braking'
-                    ],
-                    speed_advisory: 'Max 25 km/h recommended in this sector',
-                    accident_probability: 'Very High'
+                const commuterAnalysis = s.commuter_analysis || [
+                  {
+                    category: "Two-Wheelers (Bikes & Scooters)",
+                    risk_score: s.user_risks?.two_wheeler ?? 90,
+                    risk_level: (s.user_risks?.two_wheeler ?? 90) >= 65 ? "High Risk" : ((s.user_risks?.two_wheeler ?? 90) >= 35 ? "Medium Risk" : "Low Risk"),
+                    color: "#ef4444",
+                    reason: "Narrow tires get trapped in potholes and longitudinal cracks, causing sudden balance loss or tipping." + (hasWaterlogged ? " Waterlogged potholes conceal depth." : ""),
+                    safety_tip: "Reduce speed below 25 km/h and avoid riding through puddles."
                   },
-                  four_wheeler: {
-                    user: 'Four-Wheelers & Light Commercial',
-                    risk_score: analysisResult.summary?.user_risks?.four_wheeler || 85,
-                    vulnerability: 'HIGH',
-                    color: '#f59e0b',
-                    key_hazards: [
-                      'Tire sidewall bulge, internal belt rupture, and wheel alignment offset',
-                      'Excessive wear on ball joints, tie rod ends, and lower wishbone bushings',
-                      'Hard deceleration jolt on impact increases risk of secondary rear-end collision'
-                    ],
-                    speed_advisory: 'Max 35 km/h; avoid abrupt lane swerving',
-                    accident_probability: 'Moderate to High'
+                  {
+                    category: "Four-Wheelers (Cars & Autos)",
+                    risk_score: s.user_risks?.four_wheeler ?? 80,
+                    risk_level: (s.user_risks?.four_wheeler ?? 80) >= 65 ? "High Risk" : ((s.user_risks?.four_wheeler ?? 80) >= 35 ? "Medium Risk" : "Low Risk"),
+                    color: "#f59e0b",
+                    reason: "Direct wheel impacts cause tire punctures, sidewall bulges, rim bending, and alignment drift.",
+                    safety_tip: "Brake before the anomaly; avoid sudden swerving into neighboring lanes."
                   },
-                  commercial_heavy: {
-                    user: 'Heavy Freight & Transit Buses',
-                    risk_score: 78,
-                    vulnerability: 'MODERATE',
-                    color: '#8b5cf6',
-                    key_hazards: [
-                      'Dynamic axle shock amplifies pavement sub-base disintegration',
-                      'Trailer sway and cargo shift due to differential wheel settlement',
-                      'Air brake drum and leaf spring fatigue under cyclical impact'
-                    ],
-                    speed_advisory: 'Max 30 km/h; keep to center lane where possible',
-                    accident_probability: 'Moderate'
-                  },
-                  pedestrian_cyclist: {
-                    user: 'Pedestrians & Micro-Mobility',
-                    risk_score: analysisResult.summary?.user_risks?.pedestrian || 80,
-                    vulnerability: 'HIGH',
-                    color: '#38bdf8',
-                    key_hazards: [
-                      'Severe tripping and ankle sprain risk along jagged, crumbling asphalt edges',
-                      'Bicycle / e-scooter front wheels get trapped in longitudinal crack grooves',
-                      'Vehicle splash projection creates slip and visibility hazards'
-                    ],
-                    speed_advisory: 'Dismount cycles across marked hazard zone',
-                    accident_probability: 'High for Elderly & Cyclists'
+                  {
+                    category: "Pedestrians & Cyclists",
+                    risk_score: s.user_risks?.pedestrian ?? 70,
+                    risk_level: (s.user_risks?.pedestrian ?? 70) >= 65 ? "High Risk" : ((s.user_risks?.pedestrian ?? 70) >= 35 ? "Medium Risk" : "Low Risk"),
+                    color: "#38bdf8",
+                    reason: "Uneven asphalt edges create tripping hazards, and bicycle wheels can get stuck in cracks.",
+                    safety_tip: "Watch footsteps along road edges and maintain distance from fast traffic."
                   }
-                };
+                ];
 
-                const executiveSummary = analysisResult.summary?.executive_summary || 
-                  `Automated civil engineering inspection identified ${analysisResult.summary?.total_defects || 0} active anomalies across ${analysisResult.summary?.damage_density_pct || 0}% of the surveyed pavement sector. Evaluated under ${pci.standard}, this roadway yields a PCI rating of ${pci.score}/100 (${pci.rating}), necessitating prompt remediation under municipal road safety directives.`;
+                const recommendations = s.recommendations || [
+                  ...(potholeCount > 0 ? [`Pothole Patching: Fill ${potholeCount} detected pothole(s) to eliminate tire damage and fall hazards.`] : []),
+                  ...(crackCount > 0 ? [`Crack Sealing: Seal ${crackCount} surface crack(s) before rain water enters and widens them into potholes.`] : []),
+                  ...(hasWaterlogged ? ["Drainage Clearance: Clear road shoulders so standing water does not conceal pothole cavities."] : ["Routine Monitoring: Continue regular road surveillance."])
+                ];
 
                 return (
                   <ErrorBoundary>
                     <div className="space-y-6">
 
-                      {/* 1. Executive Diagnostic Summary Callout */}
-                      <div className="p-4 rounded-xl bg-gradient-to-r from-[#181820] to-[#121216] border-l-4 border-l-amber-400 border border-[#242429] shadow-xl">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 rounded-lg bg-amber-400/10 text-amber-300 mt-0.5 shrink-0">
-                            <Quote className="w-4 h-4" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-syne font-bold text-xs text-[#f5ebe1] tracking-wide uppercase">
-                                Chief Municipal Engineer Diagnostic Synthesis
-                              </h4>
-                              <span className="px-2 py-0.2 rounded text-[8px] font-mono font-bold bg-[#f5ebe1]/15 text-[#f5ebe1]">
-                                {repairEstimate.compliance_standard}
-                              </span>
-                            </div>
-                            <p className="text-xs text-[#d6d0c7] leading-relaxed font-sans">
-                              {executiveSummary}
+                      {/* 1. AI Summary Card */}
+                      <div className="p-4 rounded-xl bg-[#141418] border border-[#242429] shadow-lg flex items-start gap-3">
+                        <div className="p-2 rounded-lg bg-[#f5ebe1]/10 text-[#f5ebe1] shrink-0 mt-0.5">
+                          <Info className="w-4 h-4" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-syne font-bold text-xs text-[#f4efe6]">Inspection Summary & Findings</h4>
+                          <p className="text-xs text-[#d6d0c7] leading-relaxed font-sans">{summaryInsight}</p>
+                          {hasWaterlogged && (
+                            <p className="text-xs text-cyan-400 font-semibold flex items-center gap-1.5 pt-1">
+                              <Droplet className="w-3.5 h-3.5 shrink-0" />
+                              <span>Waterlogging Alert: Standing water is concealing pothole depth — extreme hazard for two-wheelers.</span>
                             </p>
-                          </div>
+                          )}
                         </div>
                       </div>
 
-                      {/* 2. Top Core Civil Engineering KPIs (4 Cards) */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {/* 2. Key Metrics Row (4 Cards) */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         
-                        {/* PCI Card */}
-                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429] relative overflow-hidden group hover:border-[#383842] transition-colors">
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-[11px] font-medium text-[#8a8880]">Pavement Condition (PCI)</span>
+                        {/* Road Health Score */}
+                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429]">
+                          <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Road Health Score</span>
+                          <div className="flex items-baseline gap-2 mb-1.5">
+                            <span className="text-3xl font-syne font-extrabold" style={{ color: roadHealth.color }}>
+                              {roadHealth.score}%
+                            </span>
                             <span 
-                              className="px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider"
-                              style={{ backgroundColor: `${pci.color}20`, color: pci.color, border: `1px solid ${pci.color}40` }}
+                              className="px-2 py-0.2 rounded text-[9px] font-mono font-bold uppercase"
+                              style={{ backgroundColor: `${roadHealth.color}20`, color: roadHealth.color }}
                             >
-                              {pci.rating}
+                              {roadHealth.status}
                             </span>
                           </div>
-                          <div className="flex items-baseline gap-2 mb-1.5">
-                            <span className="text-3xl font-syne font-extrabold text-[#f4efe6]">{pci.score}</span>
-                            <span className="text-xs text-[#8a8880] font-mono font-normal">/ 100</span>
-                          </div>
-                          <div className="w-full bg-[#101014] rounded-full h-1.5 overflow-hidden mb-2">
-                            <div 
-                              className="h-full rounded-full transition-all duration-700"
-                              style={{ width: `${pci.score}%`, backgroundColor: pci.color }}
-                            />
-                          </div>
-                          <p className="text-[10px] text-[#a29f99] font-sans truncate" title={pci.integrity_status}>
-                            {pci.integrity_status}
-                          </p>
-                        </div>
-
-                        {/* Remediation Cost & Area */}
-                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429] hover:border-[#383842] transition-colors">
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-[11px] font-medium text-[#8a8880]">Remediation Budget Est.</span>
-                            <span className="p-1 rounded bg-[#f5ebe1]/10 text-[#f5ebe1]">
-                              <DollarSign className="w-3.5 h-3.5" />
-                            </span>
-                          </div>
-                          <div className="flex items-baseline gap-2 mb-1.5">
-                            <span className="text-2xl font-syne font-extrabold text-amber-300">
-                              ₹{Number(repairEstimate.cost_inr).toLocaleString('en-IN')}
-                            </span>
-                            <span className="text-[11px] text-[#8a8880] font-mono">
-                              (~${repairEstimate.cost_usd})
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-[10px] text-[#a29f99]">
-                            <Construction className="w-3 h-3 text-[#f5ebe1]" />
-                            <span>Damaged: {repairEstimate.damaged_area_sqm} m² ({repairEstimate.damaged_area_sqft} sq ft)</span>
+                          <div className="w-full bg-[#101014] rounded-full h-1.5 overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-700" style={{ width: `${roadHealth.score}%`, backgroundColor: roadHealth.color }} />
                           </div>
                         </div>
 
-                        {/* Municipal SLA & Urgency */}
-                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429] hover:border-[#383842] transition-colors">
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-[11px] font-medium text-[#8a8880]">Intervention Mandate</span>
-                            <span className="p-1 rounded bg-rose-500/10 text-rose-400">
-                              <Clock className="w-3.5 h-3.5" />
-                            </span>
-                          </div>
-                          <div className="mb-1.5">
-                            <span className="text-base font-syne font-extrabold text-rose-300 block truncate" title={repairEstimate.urgency}>
-                              {repairEstimate.urgency}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-[10px] text-[#d6d0c7] font-mono font-semibold">
-                            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping shrink-0" />
-                            <span>SLA: {repairEstimate.urgency_window}</span>
-                          </div>
+                        {/* Total Defects */}
+                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429]">
+                          <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Defects Found</span>
+                          <span className="text-3xl font-syne font-extrabold text-[#f4efe6] block mb-1">
+                            {totalDefects}
+                          </span>
+                          <span className="text-[10px] text-[#a29f99] font-mono">
+                            {potholeCount} Pothole{potholeCount !== 1 ? 's' : ''} • {crackCount} Crack{crackCount !== 1 ? 's' : ''}
+                          </span>
                         </div>
 
-                        {/* Environmental & Monsoon Vulnerability */}
-                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429] hover:border-[#383842] transition-colors">
-                          <div className="flex justify-between items-start mb-2">
-                            <span className="text-[11px] font-medium text-[#8a8880]">Weather & Monsoon Multiplier</span>
-                            <span className="p-1 rounded bg-cyan-500/10 text-cyan-400">
-                              <Droplet className="w-3.5 h-3.5" />
+                        {/* Damage Surface Density */}
+                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429]">
+                          <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Surface Damage Coverage</span>
+                          <span className="text-3xl font-syne font-extrabold text-[#f4efe6] block mb-1">
+                            {damageDensity}%
+                          </span>
+                          <span className="text-[10px] text-[#a29f99] font-sans">
+                            of surveyed road area
+                          </span>
+                        </div>
+
+                        {/* Repair Priority Index */}
+                        <div className="p-4 rounded-xl bg-[#141418] border border-[#242429]">
+                          <span className="text-[11px] text-[#8a8880] font-medium block mb-1">Repair Priority</span>
+                          <div className="flex items-baseline gap-1 mb-1">
+                            <span className="text-3xl font-syne font-extrabold text-amber-400">
+                              Level {repairPriority}
                             </span>
+                            <span className="text-xs text-[#8a8880] font-mono">/ 5</span>
                           </div>
-                          <div className="flex items-baseline gap-1.5 mb-1.5">
-                            <span className="text-2xl font-syne font-extrabold text-cyan-300">3.8×</span>
-                            <span className="text-[10px] text-[#8a8880] uppercase tracking-wide">Pothole Expansion</span>
-                          </div>
-                          <p className="text-[10px] text-cyan-400 font-sans truncate">
-                            {analysisResult.ranked_defects?.some(d => d.is_waterlogged) ? 'Standing water accelerating subgrade wash' : 'Dry asphalt condition observed'}
-                          </p>
+                          <span className={`text-[10px] font-bold font-sans ${repairPriority >= 4 ? 'text-rose-400' : 'text-amber-400'}`}>
+                            {repairPriority >= 4 ? 'Immediate Repair Required' : 'Moderate Priority'}
+                          </span>
                         </div>
 
                       </div>
 
-                      {/* 3. Visual Charts & Predictive Analytics Grid */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                        {/* Chart 1: 6-Axis Multi-Vector Risk Radar */}
-                        <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between shadow-xl">
-                          <div>
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className="text-xs font-syne font-bold text-[#f4efe6] flex items-center gap-2">
-                                <ShieldAlert className="w-4 h-4 text-cyan-400" />
-                                <span>6-Axis Civil Hazard Radar Analysis</span>
-                              </h4>
-                              <span className="text-[9px] font-mono text-[#8a8880]">0-100 Multi-Vector</span>
-                            </div>
-                            <p className="text-[11px] text-[#8a8880] mb-3">
-                              Holistic assessment covering structural degradation, hydroplaning, commuter risk, and subgrade ingress.
-                            </p>
-                          </div>
-                          <div className="h-64 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <RadarChart data={riskRadar} outerRadius="72%">
-                                <PolarGrid stroke="#2b2b34" />
-                                <PolarAngleAxis dataKey="subject" stroke="#a29f99" tick={{ fill: '#d6d0c7', fontSize: 10 }} />
-                                <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="#4a4a58" tick={{ fill: '#8a8880', fontSize: 9 }} />
-                                <Radar 
-                                  name="Risk Severity" 
-                                  dataKey="value" 
-                                  stroke="#38bdf8" 
-                                  fill="#38bdf8" 
-                                  fillOpacity={0.25} 
-                                />
-                                <Tooltip contentStyle={{ backgroundColor: '#141418', borderColor: '#2b2b34', borderRadius: '10px', fontSize: '11px', color: '#f4efe6' }} />
-                              </RadarChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </div>
-
-                        {/* Chart 2: 90-Day Pavement Deterioration vs Timely Repair */}
-                        <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between shadow-xl">
-                          <div>
-                            <div className="flex items-center justify-between mb-1">
-                              <h4 className="text-xs font-syne font-bold text-[#f4efe6] flex items-center gap-2">
-                                <TrendingDown className="w-4 h-4 text-rose-400" />
-                                <span>90-Day Pavement Decay vs Repair Trajectory</span>
-                              </h4>
-                              <span className="text-[9px] font-mono text-[#8a8880]">ASTM D6433 Modeling</span>
-                            </div>
-                            <p className="text-[11px] text-[#8a8880] mb-3">
-                              Untreated road structural decay accelerates by 60% over 90 days vs immediate restoration.
-                            </p>
-                          </div>
-                          <div className="h-64 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <AreaChart data={deteriorationForecast}>
-                                <defs>
-                                  <linearGradient id="colorUntreated" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4}/>
-                                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0.0}/>
-                                  </linearGradient>
-                                  <linearGradient id="colorRepaired" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.0}/>
-                                  </linearGradient>
-                                </defs>
-                                <XAxis dataKey="timeline" stroke="#8a8880" fontSize={10} tickLine={false} />
-                                <YAxis domain={[0, 100]} stroke="#8a8880" fontSize={10} tickLine={false} />
-                                <Tooltip contentStyle={{ backgroundColor: '#141418', borderColor: '#2b2b34', borderRadius: '10px', fontSize: '11px', color: '#f4efe6' }} />
-                                <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '8px' }} />
-                                <Area type="monotone" dataKey="untreated" name="Untreated Decay (PCI)" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorUntreated)" />
-                                <Area type="monotone" dataKey="repaired" name="Post-Repair Trajectory" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRepaired)" />
-                              </AreaChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </div>
-
-                        {/* Chart 3: Defect Distribution Bar Chart */}
+                      {/* 3. Visual Charts (Defect Categories & Severity) */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        {/* Defect Categories Bar Chart */}
                         <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between shadow-xl">
                           <div>
                             <h4 className="text-xs font-syne font-bold text-[#f4efe6] mb-1 flex items-center gap-2">
-                              <BarChart2 className="w-4 h-4 text-[#f5ebe1]" /> Defect Classification Breakdown
+                              <BarChart2 className="w-4 h-4 text-[#f5ebe1]" /> Defect Classification Count
                             </h4>
-                            <p className="text-[11px] text-[#8a8880] mb-3">Detected frequency by civil anomaly category</p>
+                            <p className="text-[11px] text-[#8a8880] mb-3">Count of detected potholes and crack patterns</p>
                           </div>
                           <div className="h-56 w-full">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1353,13 +1200,13 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* Chart 4: Severity Proportions Pie Chart */}
+                        {/* Severity Breakdown Donut Chart */}
                         <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429] flex flex-col justify-between shadow-xl">
                           <div>
                             <h4 className="text-xs font-syne font-bold text-[#f4efe6] mb-1 flex items-center gap-2">
-                              <Activity className="w-4 h-4 text-amber-400" /> Severity Stratification
+                              <Activity className="w-4 h-4 text-amber-400" /> Severity Breakdown
                             </h4>
-                            <p className="text-[11px] text-[#8a8880] mb-3">Proportion of High vs Medium vs Low hazard instances</p>
+                            <p className="text-[11px] text-[#8a8880] mb-3">High vs Medium vs Low hazard proportions</p>
                           </div>
                           <div className="h-56 w-full flex items-center justify-center">
                             <ResponsiveContainer width="100%" height="100%">
@@ -1387,174 +1234,74 @@ export default function App() {
 
                       </div>
 
-                      {/* 4. Multi-Commuter Vulnerability Deep-Dive (4 Cards) */}
+                      {/* 4. Commuter Safety & Risk Assessment (3 Cards) */}
                       <div>
                         <div className="mb-3">
                           <h4 className="text-sm font-syne font-bold text-[#f4efe6] flex items-center gap-2">
                             <ShieldCheck className="w-4 h-4 text-rose-400" />
-                            <span>Multi-Commuter Hazard & Vulnerability Profiles</span>
+                            <span>Road-User Safety & Risk Breakdown</span>
                           </h4>
                           <p className="text-xs text-[#a29f99] font-sans">
-                            Differential physical hazard impact across transport modalities operating in this corridor.
+                            How the detected anomalies specifically affect bikes, cars, and pedestrians.
                           </p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                          
-                          {/* Two Wheeler Card */}
-                          <div className="p-4 rounded-xl bg-[#141418] border border-rose-900/40 space-y-3 flex flex-col justify-between">
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <Bike className="w-4 h-4 text-rose-400" />
-                                  <h5 className="font-syne font-bold text-xs text-[#f4efe6]">{detailedUserImpact.two_wheeler.user}</h5>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {commuterAnalysis.map((item, idx) => (
+                            <div key={idx} className="p-4 rounded-xl bg-[#141418] border border-[#242429] flex flex-col justify-between space-y-3 shadow-md hover:border-[#383842] transition-colors">
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    {idx === 0 && <Bike className="w-4 h-4 text-rose-400 shrink-0" />}
+                                    {idx === 1 && <Car className="w-4 h-4 text-amber-400 shrink-0" />}
+                                    {idx === 2 && <Compass className="w-4 h-4 text-cyan-400 shrink-0" />}
+                                    <h5 className="font-syne font-bold text-xs text-[#f4efe6]">{item.category}</h5>
+                                  </div>
+                                  <span 
+                                    className="px-2 py-0.5 rounded text-[9px] font-mono font-bold"
+                                    style={{ backgroundColor: `${item.color}20`, color: item.color, border: `1px solid ${item.color}40` }}
+                                  >
+                                    {item.risk_level}
+                                  </span>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                                  {detailedUserImpact.two_wheeler.vulnerability}
-                                </span>
-                              </div>
-                              <div className="w-full bg-[#101014] rounded-full h-2 overflow-hidden mb-3">
-                                <div className="h-full bg-rose-500 rounded-full" style={{ width: `${detailedUserImpact.two_wheeler.risk_score}%` }} />
-                              </div>
-                              <ul className="space-y-1.5 text-[10px] text-[#d6d0c7] font-sans">
-                                {detailedUserImpact.two_wheeler.key_hazards.map((h, i) => (
-                                  <li key={i} className="flex items-start gap-1.5">
-                                    <span className="text-rose-400 shrink-0 mt-0.5">•</span>
-                                    <span>{h}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div className="pt-2 border-t border-[#242429] flex justify-between items-center text-[10px] font-mono text-amber-300">
-                              <span>Advisory Speed:</span>
-                              <span className="font-bold">{detailedUserImpact.two_wheeler.speed_advisory}</span>
-                            </div>
-                          </div>
 
-                          {/* Four Wheeler Card */}
-                          <div className="p-4 rounded-xl bg-[#141418] border border-amber-900/40 space-y-3 flex flex-col justify-between">
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <Car className="w-4 h-4 text-amber-400" />
-                                  <h5 className="font-syne font-bold text-xs text-[#f4efe6]">{detailedUserImpact.four_wheeler.user}</h5>
+                                <div className="space-y-1 mb-2.5">
+                                  <div className="flex justify-between text-[11px] font-mono">
+                                    <span className="text-[#8a8880]">Vulnerability Score</span>
+                                    <span className="font-bold" style={{ color: item.color }}>{item.risk_score}%</span>
+                                  </div>
+                                  <div className="w-full bg-[#101014] rounded-full h-2 overflow-hidden border border-[#242429]">
+                                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${item.risk_score}%`, backgroundColor: item.color }} />
+                                  </div>
                                 </div>
-                                <span className="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                                  {detailedUserImpact.four_wheeler.vulnerability}
-                                </span>
-                              </div>
-                              <div className="w-full bg-[#101014] rounded-full h-2 overflow-hidden mb-3">
-                                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${detailedUserImpact.four_wheeler.risk_score}%` }} />
-                              </div>
-                              <ul className="space-y-1.5 text-[10px] text-[#d6d0c7] font-sans">
-                                {detailedUserImpact.four_wheeler.key_hazards.map((h, i) => (
-                                  <li key={i} className="flex items-start gap-1.5">
-                                    <span className="text-amber-400 shrink-0 mt-0.5">•</span>
-                                    <span>{h}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div className="pt-2 border-t border-[#242429] flex justify-between items-center text-[10px] font-mono text-amber-300">
-                              <span>Advisory Speed:</span>
-                              <span className="font-bold">{detailedUserImpact.four_wheeler.speed_advisory}</span>
-                            </div>
-                          </div>
 
-                          {/* Heavy Commercial Card */}
-                          <div className="p-4 rounded-xl bg-[#141418] border border-purple-900/40 space-y-3 flex flex-col justify-between">
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <Layers className="w-4 h-4 text-purple-400" />
-                                  <h5 className="font-syne font-bold text-xs text-[#f4efe6]">{detailedUserImpact.commercial_heavy.user}</h5>
-                                </div>
-                                <span className="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">
-                                  {detailedUserImpact.commercial_heavy.vulnerability}
-                                </span>
+                                <p className="text-[11px] text-[#d6d0c7] font-sans leading-relaxed">
+                                  {item.reason}
+                                </p>
                               </div>
-                              <div className="w-full bg-[#101014] rounded-full h-2 overflow-hidden mb-3">
-                                <div className="h-full bg-purple-500 rounded-full" style={{ width: `${detailedUserImpact.commercial_heavy.risk_score}%` }} />
-                              </div>
-                              <ul className="space-y-1.5 text-[10px] text-[#d6d0c7] font-sans">
-                                {detailedUserImpact.commercial_heavy.key_hazards.map((h, i) => (
-                                  <li key={i} className="flex items-start gap-1.5">
-                                    <span className="text-purple-400 shrink-0 mt-0.5">•</span>
-                                    <span>{h}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                            <div className="pt-2 border-t border-[#242429] flex justify-between items-center text-[10px] font-mono text-amber-300">
-                              <span>Advisory Speed:</span>
-                              <span className="font-bold">{detailedUserImpact.commercial_heavy.speed_advisory}</span>
-                            </div>
-                          </div>
 
-                          {/* Pedestrian / Micro Mobility Card */}
-                          <div className="p-4 rounded-xl bg-[#141418] border border-cyan-900/40 space-y-3 flex flex-col justify-between">
-                            <div>
-                              <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2">
-                                  <Compass className="w-4 h-4 text-cyan-400" />
-                                  <h5 className="font-syne font-bold text-xs text-[#f4efe6]">{detailedUserImpact.pedestrian_cyclist.user}</h5>
-                                </div>
-                                <span className="px-2 py-0.5 rounded text-[8px] font-mono font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                                  {detailedUserImpact.pedestrian_cyclist.vulnerability}
-                                </span>
+                              <div className="pt-2 border-t border-[#242429] text-[10px] text-amber-300 font-sans flex items-start gap-1.5">
+                                <span className="font-bold shrink-0">Tip:</span>
+                                <span>{item.safety_tip}</span>
                               </div>
-                              <div className="w-full bg-[#101014] rounded-full h-2 overflow-hidden mb-3">
-                                <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${detailedUserImpact.pedestrian_cyclist.risk_score}%` }} />
-                              </div>
-                              <ul className="space-y-1.5 text-[10px] text-[#d6d0c7] font-sans">
-                                {detailedUserImpact.pedestrian_cyclist.key_hazards.map((h, i) => (
-                                  <li key={i} className="flex items-start gap-1.5">
-                                    <span className="text-cyan-400 shrink-0 mt-0.5">•</span>
-                                    <span>{h}</span>
-                                  </li>
-                                ))}
-                              </ul>
                             </div>
-                            <div className="pt-2 border-t border-[#242429] flex justify-between items-center text-[10px] font-mono text-cyan-300">
-                              <span>Advisory Speed:</span>
-                              <span className="font-bold">{detailedUserImpact.pedestrian_cyclist.speed_advisory}</span>
-                            </div>
-                          </div>
-
+                          ))}
                         </div>
                       </div>
 
-                      {/* 5. Municipal Work Order & Engineering Specifications */}
-                      <div className="p-5 rounded-2xl bg-gradient-to-r from-[#141418] to-[#1a1a24] border border-[#242429] shadow-xl">
-                        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                          <div className="flex items-center gap-2">
-                            <Wrench className="w-4 h-4 text-[#f5ebe1]" />
-                            <h4 className="font-syne font-bold text-sm text-[#f4efe6]">
-                              Prescribed Municipal Remediation & Work Order Specification
-                            </h4>
-                          </div>
-                          <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-400/10 text-amber-300 border border-amber-400/30">
-                            Ref: {repairEstimate.compliance_standard}
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans">
-                          <div className="p-3.5 rounded-xl bg-[#0c0c0e]/80 border border-[#242429]">
-                            <span className="text-[10px] text-[#8a8880] font-mono block mb-1">Recommended Treatment</span>
-                            <span className="font-bold text-[#f5ebe1] block">{repairEstimate.treatment}</span>
-                          </div>
-                          <div className="p-3.5 rounded-xl bg-[#0c0c0e]/80 border border-[#242429]">
-                            <span className="text-[10px] text-[#8a8880] font-mono block mb-1">Prescribed Materials</span>
-                            <span className="text-[#d6d0c7] block">
-                              {repairEstimate.materials.join(' • ')}
-                            </span>
-                          </div>
-                          <div className="p-3.5 rounded-xl bg-[#0c0c0e]/80 border border-[#242429]">
-                            <span className="text-[10px] text-[#8a8880] font-mono block mb-1">Required Machinery</span>
-                            <span className="text-[#d6d0c7] block">
-                              {repairEstimate.equipment.join(' • ')}
-                            </span>
-                          </div>
+                      {/* 5. Actionable Maintenance Recommendations */}
+                      <div className="p-5 rounded-2xl bg-[#141418] border border-[#242429] shadow-lg">
+                        <h4 className="font-syne font-bold text-xs text-[#f4efe6] mb-3 flex items-center gap-2">
+                          <Wrench className="w-4 h-4 text-[#f5ebe1]" />
+                          <span>Recommended Action Plan</span>
+                        </h4>
+                        <div className="space-y-2 text-xs font-sans">
+                          {recommendations.map((rec, i) => (
+                            <div key={i} className="p-3 rounded-lg bg-[#0c0c0e]/80 border border-[#242429] flex items-start gap-2.5 text-[#d6d0c7]">
+                              <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                              <span>{rec}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
 

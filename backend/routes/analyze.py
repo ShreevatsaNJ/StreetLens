@@ -312,9 +312,7 @@ def analyze_session(session_id):
                 {"user": "Two-Wheeler", "risk": summary["user_risks"]["two_wheeler"], "color": "#ef4444"},
                 {"user": "Four-Wheeler", "risk": summary["user_risks"]["four_wheeler"], "color": "#f59e0b"},
                 {"user": "Pedestrian", "risk": summary["user_risks"]["pedestrian"], "color": "#3b82f6"},
-            ],
-            "risk_radar": summary.get("risk_radar", []),
-            "deterioration_forecast": summary.get("deterioration_forecast", [])
+            ]
         }
 
         raw_ext = raw_path.suffix.lstrip(".")
