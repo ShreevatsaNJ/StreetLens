@@ -21,6 +21,10 @@ backend/storage/annotated/*
 !backend/storage/annotated/.gitkeep
 backend/storage/reports/*
 !backend/storage/reports/.gitkeep
+backend/storage/temp_frames/
+scratch/
+video_preview_h264.mp4
+*.log
 
 # Model Weights (Large binary files, keep trained best_road_damage.pt under 100MB)
 backend/models/*.pt

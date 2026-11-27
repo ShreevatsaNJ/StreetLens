@@ -18,10 +18,10 @@ export default function HazardMap({ sessions = [], currentCoords = null, onSelec
         attributionControl: false
       }).setView([initialLat, initialLon], 14);
 
-      // CartoDB Dark Matter tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      // OpenStreetMap tiles (free, no API key) with dark invert filter
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        subdomains: 'abcd',
+        attribution: '© OpenStreetMap contributors',
       }).addTo(map);
 
       L.control.zoom({ position: 'topright' }).addTo(map);
@@ -92,7 +92,7 @@ export default function HazardMap({ sessions = [], currentCoords = null, onSelec
   }, [sessions, currentCoords]);
 
   return (
-    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#f5ebe1]/15 bg-[#141417] shadow-2xl">
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#f5ebe1]/15 bg-[#141417] shadow-2xl hazard-map-dark">
       <div ref={mapContainerRef} className="w-full h-full min-h-[450px]" />
       
       {/* Map Legend Overlay */}

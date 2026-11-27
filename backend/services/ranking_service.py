@@ -4,7 +4,7 @@ import numpy as np
 def detect_waterlogging(image: np.ndarray, bbox: list) -> bool:
     """
     Inspects whether a pothole/defect bounding box contains standing water or water reflections.
-    Checks low saturation and specular reflection contrast.
+    Checks low saturation, reflective contrast, and specular highlights.
     """
     try:
         x1, y1, x2, y2 = map(int, bbox)
@@ -12,23 +12,31 @@ def detect_waterlogging(image: np.ndarray, bbox: list) -> bool:
         x1, y1 = max(0, x1), max(0, y1)
         x2, y2 = min(w, x2), min(h, y2)
         
-        if (x2 - x1) <= 5 or (y2 - y1) <= 5:
+        if (x2 - x1) <= 10 or (y2 - y1) <= 10:
             return False
 
         roi = image[y1:y2, x1:x2]
+        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         v_channel = hsv[:, :, 2]
         s_channel = hsv[:, :, 1]
         
-        # Waterlogged asphalt shows high specular highlights alongside low saturation
-        bright_pixels = np.sum(v_channel > 215)
-        low_sat_pixels = np.sum(s_channel < 50)
-        total_pixels = roi.shape[0] * roi.shape[1]
+        total_pixels = float(roi.shape[0] * roi.shape[1])
         
-        ratio_bright = bright_pixels / float(total_pixels)
-        ratio_low_sat = low_sat_pixels / float(total_pixels)
+        # Water reflections: bright reflective center or specular highlights alongside low saturation & dark cavity edge
+        bright_pixels = np.sum(v_channel > 140)
+        dark_pixels = np.sum(gray < 75)
+        low_sat_pixels = np.sum(s_channel < 60)
         
-        return bool(ratio_bright > 0.12 and ratio_low_sat > 0.40)
+        ratio_bright = bright_pixels / total_pixels
+        ratio_dark = dark_pixels / total_pixels
+        ratio_low_sat = low_sat_pixels / total_pixels
+        
+        # Either direct specular glare (>200) or bimodal puddle reflection
+        is_glare = (np.sum(v_channel > 210) / total_pixels > 0.08) and (ratio_low_sat > 0.35)
+        is_puddle = (ratio_bright > 0.12 and ratio_dark > 0.10 and ratio_low_sat > 0.30)
+        
+        return bool(is_glare or is_puddle)
     except Exception:
         return False
 
@@ -72,11 +80,11 @@ def rank_and_analyze_defects(raw_detections: list, image: np.ndarray):
         w_c = CLASS_WEIGHTS.get(cls_name.lower(), 0.50)
         
         # Waterlogged check (if pothole contains standing water)
-        is_waterlogged = False
-        if "pothole" in cls_name.lower():
+        is_waterlogged = bool(d.get("is_waterlogged", False))
+        if not is_waterlogged and "pothole" in cls_name.lower():
             is_waterlogged = detect_waterlogging(image, bbox)
-            if is_waterlogged:
-                w_c = min(1.20, w_c * 1.25)  # waterlogged potholes are significantly more hazardous
+        if is_waterlogged:
+            w_c = min(1.20, w_c * 1.25)  # waterlogged potholes are significantly more hazardous
 
         # Composite severity score: 0.0 to 1.0
         # Formula: w_c * (0.6 * scaled_area + 0.4 * confidence)

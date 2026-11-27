@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+html {
+  font-size: 13px; /* Compact professional density: scales rem measurements down to prevent oversized elements */
+  -webkit-text-size-adjust: 100%;
+}
+
 :root {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: dark;
@@ -63,4 +68,37 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #f5ebe1;
+}
+
+/* Continuous Horizontal Infinite Marquee for Road Telemetry */
+@keyframes roadMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-road-marquee {
+  display: flex;
+  width: max-content;
+  animation: roadMarquee 38s linear infinite;
+  will-change: transform;
+}
+
+.animate-road-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Dark mode for Leaflet OSM tiles — invert + warm hue shift to match obsidian theme */
+.hazard-map-dark .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(1.1) saturate(0.3);
+}
+/* Keep markers/popups/overlays normal (un-invert them) */
+.hazard-map-dark .leaflet-marker-pane,
+.hazard-map-dark .leaflet-popup-pane,
+.hazard-map-dark .leaflet-overlay-pane,
+.hazard-map-dark .leaflet-shadow-pane {
+  filter: none;
 }

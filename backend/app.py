@@ -63,11 +63,11 @@ def create_app():
             "cuda": cuda_available
         }), 200
 
-    # Serve static stored media (uploads, enhanced, annotated, reports)
+    # Serve static stored media (uploads, enhanced, annotated, reports) with byte-range support for video streaming
     @app.route("/storage/<path:subfolder>/<filename>")
     def serve_storage(subfolder, filename):
         target_dir = Config.STORAGE_DIR / subfolder
-        return send_from_directory(str(target_dir), filename)
+        return send_from_directory(str(target_dir), filename, conditional=True)
 
     return app
 

@@ -15,13 +15,22 @@ import CompareSlider from './components/CompareSlider';
 import HazardMap from './components/HazardMap';
 import LiveCameraFeed from './components/LiveCameraFeed';
 import LandingPage from './components/LandingPage';
+import DefectOverlays from './components/DefectOverlays';
+import VideoAnalysisPlayer from './components/VideoAnalysisPlayer';
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = typeof window !== 'undefined' && window.location.hostname 
+  ? `http://${window.location.hostname}:5000` 
+  : "http://localhost:5000";
 
 export default function App() {
   // Navigation & View State
   const [showLanding, setShowLanding] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'inspector', 'live', 'map', 'analytics', 'reports'
+
+  // Interactive Defect Selection & Hover State
+  const [hoveredDefectRank, setHoveredDefectRank] = useState(null);
+  const [selectedDefectRank, setSelectedDefectRank] = useState(null);
+  const [seekToTime, setSeekToTime] = useState(null);
 
   // Upload & Inspection State
   const [selectedFile, setSelectedFile] = useState(null);
@@ -63,6 +72,8 @@ export default function App() {
     setSelectedFile(file);
     setErrorMsg('');
     setAnalysisResult(null);
+    setHoveredDefectRank(null);
+    setSelectedDefectRank(null);
 
     const isVideo = file.type.startsWith('video');
     setMediaType(isVideo ? 'video' : 'image');
@@ -79,6 +90,8 @@ export default function App() {
       setSelectedFile(file);
       setErrorMsg('');
       setAnalysisResult(null);
+      setHoveredDefectRank(null);
+      setSelectedDefectRank(null);
       setMediaType('image');
       setPreviewUrl(samplePath);
     } catch (err) {
@@ -94,6 +107,8 @@ export default function App() {
     setActiveTab('inspector');
     setErrorMsg('');
     setAnalysisResult(null);
+    setHoveredDefectRank(null);
+    setSelectedDefectRank(null);
   };
 
   const handleUploadAndAnalyze = async () => {
@@ -105,6 +120,8 @@ export default function App() {
     try {
       setIsProcessing(true);
       setErrorMsg('');
+      setHoveredDefectRank(null);
+      setSelectedDefectRank(null);
       setProcessingStep('Ingesting media & extracting geospatial telemetry...');
 
       const formData = new FormData();
@@ -125,6 +142,12 @@ export default function App() {
       const analyzeRes = await axios.post(`${API_BASE}/api/analyze/${session_id}`);
 
       setAnalysisResult(analyzeRes.data);
+      if (analyzeRes.data?.media_type === 'video' || analyzeRes.data?.media_urls?.video) {
+        setActiveView('video');
+      } else {
+        setActiveView('slider');
+      }
+      setSeekToTime(null);
       fetchSessions(); // refresh history
     } catch (err) {
       console.error("Analysis Pipeline Error:", err);
@@ -138,14 +161,14 @@ export default function App() {
   const getConditionBadge = (condition) => {
     switch (condition?.toUpperCase()) {
       case 'CRITICAL':
-        return <span className="px-3 py-1 rounded-full text-xs font-syne font-bold bg-rose-950/80 text-rose-300 border border-rose-800/80">CRITICAL</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-syne font-bold bg-rose-950/80 text-rose-300 border border-rose-800/80">CRITICAL</span>;
       case 'POOR':
-        return <span className="px-3 py-1 rounded-full text-xs font-syne font-bold bg-orange-950/80 text-orange-300 border border-orange-800/80">POOR</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-syne font-bold bg-orange-950/80 text-orange-300 border border-orange-800/80">POOR</span>;
       case 'FAIR':
-        return <span className="px-3 py-1 rounded-full text-xs font-syne font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80">FAIR</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-syne font-bold bg-amber-950/80 text-amber-300 border border-amber-800/80">FAIR</span>;
       case 'GOOD':
       default:
-        return <span className="px-3 py-1 rounded-full text-xs font-syne font-bold bg-[#f5ebe1]/15 text-[#f5ebe1] border border-[#f5ebe1]/30">GOOD</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[10px] font-syne font-bold bg-[#f5ebe1]/15 text-[#f5ebe1] border border-[#f5ebe1]/30">GOOD</span>;
     }
   };
 
@@ -177,12 +200,16 @@ export default function App() {
         <div>
           {/* Logo & Brand Status */}
           <div className="p-4 border-b border-[#242429] flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-sm shadow-[0_0_15px_rgba(245,235,225,0.2)]">
+            <div 
+              onClick={() => setShowLanding(true)}
+              className="flex items-center gap-2.5 cursor-pointer group"
+              title="Return to StreetLens Landing Page"
+            >
+              <div className="w-8 h-8 rounded-lg bg-[#f5ebe1] text-[#0c0c0e] flex items-center justify-center font-syne font-extrabold text-sm shadow-[0_0_15px_rgba(245,235,225,0.2)] group-hover:scale-105 transition-transform">
                 SL
               </div>
               <div>
-                <span className="font-syne font-extrabold text-sm tracking-tight text-[#f4efe6] block leading-tight">StreetLens</span>
+                <span className="font-syne font-extrabold text-sm tracking-tight text-[#f4efe6] block leading-tight group-hover:text-[#f5ebe1] transition-colors">StreetLens</span>
                 <span className="text-[9px] text-[#f5ebe1]/80 font-display font-medium tracking-wider uppercase block flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#f5ebe1] animate-pulse"></span>
                   AI Vision Active
@@ -193,18 +220,7 @@ export default function App() {
 
           {/* Navigation Menu */}
           <div className="p-2.5 space-y-1">
-            <button
-              onClick={() => setShowLanding(true)}
-              className="w-full mb-2 flex items-center justify-between px-3 py-2 rounded-lg text-xs font-display font-semibold text-[#d6d0c7] bg-[#141418] hover:bg-[#1a1a20] border border-[#2e2e38] hover:border-[#f5ebe1]/40 transition-all cursor-pointer shadow-sm group"
-            >
-              <span className="flex items-center gap-2 text-[#f5ebe1]">
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>← Landing Page</span>
-              </span>
-              <ChevronRight className="w-3 h-3 text-[#8a8880] group-hover:translate-x-0.5 transition-transform" />
-            </button>
-
-            <span className="px-2.5 text-[9px] font-display font-bold text-[#8a8880] uppercase tracking-widest block mb-1 mt-2">
+            <span className="px-2.5 text-[9px] font-display font-bold text-[#8a8880] uppercase tracking-widest block mb-1 mt-1">
               Platform Menu
             </span>
 
@@ -323,14 +339,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2.5 text-xs">
-            <button
-              onClick={() => setShowLanding(true)}
-              className="px-2.5 py-1 rounded-lg bg-[#141418] border border-[#242429] hover:border-[#f5ebe1]/40 text-[#d6d0c7] hover:text-[#f4efe6] text-[11px] font-display flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <ExternalLink className="w-3 h-3 text-[#f5ebe1]" />
-              <span className="hidden sm:inline">Landing Page</span>
-            </button>
-
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#141418] border border-[#242429] text-[#a29f99]">
               <Cpu className="w-3 h-3 text-[#f5ebe1]" />
               <span className="font-mono text-[10px]">YOLOv8s CPU</span>
@@ -729,13 +737,24 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        {analysisResult.media_urls.video && (
+                          <button
+                            onClick={() => setActiveView('video')}
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
+                              activeView === 'video' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'bg-[#1e1e24] text-[#d6d0c7]'
+                            }`}
+                          >
+                            <Video className="w-3.5 h-3.5" />
+                            <span>Real-Time AI Video</span>
+                          </button>
+                        )}
                         <button
                           onClick={() => setActiveView('slider')}
                           className={`px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-colors cursor-pointer ${
                             activeView === 'slider' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'bg-[#1e1e24] text-[#d6d0c7]'
                           }`}
                         >
-                          Before / After Slider
+                          {analysisResult.media_urls.video ? 'Keyframe Slider' : 'Before / After Slider'}
                         </button>
                         <button
                           onClick={() => setActiveView('annotated')}
@@ -743,22 +762,54 @@ export default function App() {
                             activeView === 'annotated' ? 'bg-[#f5ebe1] text-[#0c0c0e]' : 'bg-[#1e1e24] text-[#d6d0c7]'
                           }`}
                         >
-                          Full Spotlight View
+                          {analysisResult.media_urls.video ? 'Spotlight Keyframe' : 'Full Spotlight View'}
                         </button>
                       </div>
                     </div>
 
-                    {activeView === 'slider' && analysisResult.media_urls.raw ? (
+                    {activeView === 'video' && analysisResult.media_urls.video ? (
+                      <VideoAnalysisPlayer
+                        videoSrc={`${API_BASE}${analysisResult.media_urls.video}`}
+                        frameDetections={analysisResult.frame_detections || []}
+                        imageDimensions={analysisResult.image_dimensions || [960, 540]}
+                        hoveredRank={hoveredDefectRank}
+                        selectedRank={selectedDefectRank}
+                        onHoverDefect={setHoveredDefectRank}
+                        onSelectDefect={(rank) => setSelectedDefectRank(prev => prev === rank ? null : rank)}
+                        seekToTime={seekToTime}
+                      />
+                    ) : activeView === 'slider' && analysisResult.media_urls.raw ? (
                       <CompareSlider 
                         originalSrc={`${API_BASE}${analysisResult.media_urls.raw}`}
                         annotatedSrc={`${API_BASE}${analysisResult.media_urls.annotated}`}
-                      />
+                        aspectRatio={`${analysisResult.image_dimensions?.[0] || 612} / ${analysisResult.image_dimensions?.[1] || 408}`}
+                      >
+                        <DefectOverlays 
+                          defects={analysisResult.ranked_defects}
+                          imgDims={analysisResult.image_dimensions || [612, 408]}
+                          hoveredRank={hoveredDefectRank}
+                          selectedRank={selectedDefectRank}
+                          onHover={setHoveredDefectRank}
+                          onSelect={(rank) => setSelectedDefectRank(prev => prev === rank ? null : rank)}
+                        />
+                      </CompareSlider>
                     ) : (
-                      <div className="rounded-xl overflow-hidden border border-[#242429] bg-black flex items-center justify-center max-h-[500px]">
+                      <div 
+                        className="relative w-full rounded-xl overflow-hidden border border-[#242429] bg-black flex items-center justify-center shadow-2xl"
+                        style={{ aspectRatio: `${analysisResult.image_dimensions?.[0] || 612} / ${analysisResult.image_dimensions?.[1] || 408}` }}
+                      >
                         <img 
                           src={`${API_BASE}${analysisResult.media_urls.annotated}`} 
                           alt="Bokeh Spotlight View" 
-                          className="max-h-[500px] w-auto object-contain"
+                          className="w-full h-full object-cover"
+                        />
+                        <DefectOverlays 
+                          defects={analysisResult.ranked_defects}
+                          imgDims={analysisResult.image_dimensions || [612, 408]}
+                          hoveredRank={hoveredDefectRank}
+                          selectedRank={selectedDefectRank}
+                          onHover={setHoveredDefectRank}
+                          onSelect={(rank) => setSelectedDefectRank(prev => prev === rank ? null : rank)}
                         />
                       </div>
                     )}
@@ -766,23 +817,40 @@ export default function App() {
 
                   {/* Ranked Defects Ledger */}
                   <div className="p-6 rounded-2xl bg-[#141418] border border-[#242429] shadow-xl">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-syne font-bold text-[#f4efe6]">
-                        Ranked Hazards Ledger ({analysisResult.ranked_defects.length} detected)
-                      </h3>
-                      <button 
-                        onClick={() => setActiveTab('reports')}
-                        className="text-xs text-[#f5ebe1] hover:underline font-semibold cursor-pointer"
-                      >
-                        View Full Ledger & PDF →
-                      </button>
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <h3 className="text-sm font-syne font-bold text-[#f4efe6]">
+                          Ranked Hazards Ledger ({analysisResult.ranked_defects.length} detected)
+                        </h3>
+                        {selectedDefectRank !== null && (
+                          <button 
+                            onClick={() => setSelectedDefectRank(null)}
+                            className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#f5ebe1]/20 text-[#f5ebe1] border border-[#f5ebe1]/40 hover:bg-[#f5ebe1]/30 transition-colors flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>Pinned #{selectedDefectRank}</span>
+                            <span className="text-xs">✕ Clear</span>
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] text-[#8a8880] hidden sm:inline">
+                          {analysisResult.media_urls.video ? 'Click any defect row to seek video to that timestamp' : 'Hover or click row/box to highlight'}
+                        </span>
+                        <button 
+                          onClick={() => setActiveTab('reports')}
+                          className="text-xs text-[#f5ebe1] hover:underline font-semibold cursor-pointer"
+                        >
+                          View Full Ledger & PDF →
+                        </button>
+                      </div>
                     </div>
 
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs text-[#d6d0c7]">
-                        <thead className="bg-[#101014] text-[#8a8880] uppercase text-[10px] font-display tracking-wider border-b border-[#242429]">
+                      <table className="w-full text-left text-[11px] text-[#d6d0c7]">
+                        <thead className="bg-[#101014] text-[#8a8880] uppercase text-[9px] font-display tracking-wider border-b border-[#242429]">
                           <tr>
                             <th className="py-2.5 px-3">Rank</th>
+                            {analysisResult.media_urls.video && <th className="py-2.5 px-3">Timestamp</th>}
                             <th className="py-2.5 px-3">Anomaly Class</th>
                             <th className="py-2.5 px-3">Severity</th>
                             <th className="py-2.5 px-3">Confidence</th>
@@ -792,55 +860,103 @@ export default function App() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-[#242429]">
-                          {analysisResult.ranked_defects.map((d) => (
-                            <tr key={d.rank} className="hover:bg-[#1a1a22] transition-colors">
-                              <td className="py-3 px-3 font-syne font-bold text-[#f4efe6]">#{d.rank}</td>
-                              <td className="py-3 px-3 font-semibold text-[#f4efe6]">{d.class}</td>
-                              <td className="py-3 px-3">{getSeverityBadge(d.severity)}</td>
-                              <td className="py-3 px-3 font-mono">{Math.round(d.confidence * 100)}%</td>
-                              <td className="py-3 px-3 font-mono text-[#8a8880]">{d.dimensions_px[0]} × {d.dimensions_px[1]}</td>
-                              <td className="py-3 px-3">
-                                {d.is_waterlogged ? (
-                                  <span className="text-cyan-400 font-semibold flex items-center gap-1">
-                                    <Droplet className="w-3 h-3" /> Yes
+                          {analysisResult.ranked_defects.map((d) => {
+                            const isHovered = hoveredDefectRank === d.rank;
+                            const isSelected = selectedDefectRank === d.rank;
+                            const isActive = isSelected || isHovered;
+                            const isDimmed = (selectedDefectRank !== null || hoveredDefectRank !== null) && !isActive;
+
+                            return (
+                              <tr 
+                                key={d.rank} 
+                                className={`transition-all duration-150 cursor-pointer ${
+                                  isSelected 
+                                    ? 'bg-[#f5ebe1]/15 border-l-4 border-l-[#f5ebe1] shadow-inner' 
+                                    : isHovered 
+                                    ? 'bg-[#20202a] border-l-4 border-l-amber-400' 
+                                    : isDimmed 
+                                    ? 'opacity-35 hover:opacity-100 hover:bg-[#1a1a22]' 
+                                    : 'hover:bg-[#1a1a22]'
+                                }`}
+                                onMouseEnter={() => setHoveredDefectRank(d.rank)}
+                                onMouseLeave={() => setHoveredDefectRank(null)}
+                                onClick={() => {
+                                  setSelectedDefectRank(prev => prev === d.rank ? null : d.rank);
+                                  if (d.video_timestamp !== undefined && d.video_timestamp !== null) {
+                                    setSeekToTime(d.video_timestamp);
+                                    if (activeView !== 'video') setActiveView('video');
+                                  }
+                                }}
+                              >
+                                <td className="py-2.5 px-3 font-syne font-bold">
+                                  <span className={isActive ? 'text-[#f5ebe1] font-extrabold drop-shadow-[0_0_8px_rgba(245,235,225,0.7)]' : 'text-[#f4efe6]'}>
+                                    #{d.rank}
                                   </span>
-                                ) : (
-                                  <span className="text-[#8a8880] font-mono">Dry</span>
+                                  {isSelected && (
+                                    <span className="ml-2 px-1.5 py-0.5 rounded text-[8px] font-mono font-extrabold bg-[#f5ebe1] text-[#0c0c0e]">
+                                      PINNED
+                                    </span>
+                                  )}
+                                </td>
+                                {analysisResult.media_urls.video && (
+                                  <td className="py-2.5 px-3">
+                                    <span className="inline-flex items-center gap-1 font-mono text-[9px] text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-md font-semibold hover:bg-amber-500/20 transition-colors">
+                                      ⏱ {d.timestamp_str || `00:${String(Math.floor(d.video_timestamp || 0)).padStart(2, '0')}`}
+                                      {d.track_duration && d.track_duration !== d.timestamp_str && (
+                                        <span className="text-[#8a8880] text-[8px] ml-1">({d.track_duration})</span>
+                                      )}
+                                    </span>
+                                  </td>
                                 )}
-                              </td>
-                              <td className="py-3 px-3 font-mono text-[#f5ebe1] font-semibold">{d.severity_score}</td>
-                            </tr>
-                          ))}
+                                <td className="py-2.5 px-3 font-semibold text-[#f4efe6]">
+                                  {d.class}
+                                </td>
+                                <td className="py-2.5 px-3">{getSeverityBadge(d.severity)}</td>
+                                <td className="py-2.5 px-3 font-mono">{Math.round(d.confidence * 100)}%</td>
+                                <td className="py-2.5 px-3 font-mono text-[#8a8880] text-[10px]">{d.dimensions_px[0]} × {d.dimensions_px[1]}</td>
+                                <td className="py-2.5 px-3">
+                                  {d.is_waterlogged ? (
+                                    <span className="text-cyan-400 font-semibold flex items-center gap-1 text-[10px]">
+                                      <Droplet className="w-2.5 h-2.5" /> Yes
+                                    </span>
+                                  ) : (
+                                    <span className="text-[#8a8880] font-mono text-[10px]">Dry</span>
+                                  )}
+                                </td>
+                                <td className="py-2.5 px-3 font-mono text-[#f5ebe1] font-semibold">{d.severity_score}</td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
                   </div>
 
                   {/* Download PDF & CSV Action Bar */}
-                  <div className="p-5 rounded-2xl bg-gradient-to-r from-[#141418] to-[#18181f] border border-[#242429] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#141418] to-[#18181f] border border-[#242429] flex flex-col sm:flex-row items-center justify-between gap-3">
                     <div>
-                      <h4 className="text-sm font-syne font-bold text-[#f4efe6] flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-[#f5ebe1]" />
+                      <h4 className="text-xs font-syne font-bold text-[#f4efe6] flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-[#f5ebe1]" />
                         Download Official Engineering Review
                       </h4>
-                      <p className="text-xs text-[#a29f99]">
+                      <p className="text-[11px] text-[#a29f99]">
                         PDF includes plain border canvas, embedded anomaly photo, and ranked defect ledger.
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
                       <a
                         href={`${API_BASE}/api/report/csv/${analysisResult.session_id}`}
-                        className="px-4 py-2 rounded-xl border border-[#343440] hover:bg-[#202028] text-xs font-semibold text-[#f4efe6] flex items-center gap-1.5 transition-colors"
+                        className="px-3 py-1.5 rounded-lg border border-[#343440] hover:bg-[#202028] text-[11px] font-semibold text-[#f4efe6] flex items-center gap-1 transition-colors"
                       >
-                        <Download className="w-3.5 h-3.5 text-[#8a8880]" />
+                        <Download className="w-3 h-3 text-[#8a8880]" />
                         <span>CSV Data</span>
                       </a>
                       <a
                         href={`${API_BASE}/api/report/pdf/${analysisResult.session_id}`}
-                        className="px-5 py-2 rounded-xl bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] text-xs font-syne font-bold flex items-center gap-1.5 shadow-[0_0_20px_rgba(245,235,225,0.2)] transition-all"
+                        className="px-3.5 py-1.5 rounded-lg bg-[#f5ebe1] hover:bg-white text-[#0c0c0e] text-[11px] font-syne font-bold flex items-center gap-1 shadow-[0_0_15px_rgba(245,235,225,0.2)] transition-all"
                       >
-                        <Download className="w-3.5 h-3.5" />
+                        <Download className="w-3 h-3" />
                         <span>Download PDF Report</span>
                       </a>
                     </div>
@@ -994,81 +1110,81 @@ export default function App() {
 
           {/* ================= TAB 6: AUDIT REPORTS & PAST RECORDS ================= */}
           {activeTab === 'reports' && (
-            <div className="space-y-6">
+            <div className="space-y-3.5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-syne font-bold text-[#f4efe6]">Inspection Audit Ledger</h3>
-                  <p className="text-xs text-[#a29f99] font-sans">
+                  <h3 className="text-sm font-syne font-bold text-[#f4efe6]">Inspection Audit Ledger</h3>
+                  <p className="text-[11px] text-[#a29f99] font-sans">
                     Comprehensive log of past road inspections saved in database with download links.
                   </p>
                 </div>
                 <button
                   onClick={fetchSessions}
-                  className="px-3 py-1.5 rounded-lg bg-[#141418] border border-[#242429] hover:bg-[#202028] text-xs text-[#d6d0c7] flex items-center gap-1.5 cursor-pointer font-sans"
+                  className="px-2.5 py-1 rounded-lg bg-[#141418] border border-[#242429] hover:bg-[#202028] text-[11px] text-[#d6d0c7] flex items-center gap-1.5 cursor-pointer font-sans"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${loadingSessions ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-3 h-3 ${loadingSessions ? 'animate-spin' : ''}`} />
                   <span>Refresh</span>
                 </button>
               </div>
 
-              <div className="rounded-2xl border border-[#242429] bg-[#141418] overflow-hidden shadow-xl">
+              <div className="rounded-xl border border-[#242429] bg-[#141418] overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs text-[#d6d0c7]">
-                    <thead className="bg-[#101014] text-[#8a8880] uppercase text-[10px] font-display tracking-wider border-b border-[#242429]">
+                  <table className="w-full text-left text-[11px] text-[#d6d0c7]">
+                    <thead className="bg-[#101014] text-[#8a8880] uppercase text-[9px] font-display tracking-wider border-b border-[#242429]">
                       <tr>
-                        <th className="py-3.5 px-4">Session ID / Timestamp</th>
-                        <th className="py-3.5 px-4">Filename</th>
-                        <th className="py-3.5 px-4">Condition</th>
-                        <th className="py-3.5 px-4">Defects</th>
-                        <th className="py-3.5 px-4">Priority</th>
-                        <th className="py-3.5 px-4">GPS Coordinates</th>
-                        <th className="py-3.5 px-4">Status</th>
-                        <th className="py-3.5 px-4 text-right">Actions</th>
+                        <th className="py-2 px-3">Session ID / Timestamp</th>
+                        <th className="py-2 px-3">Filename</th>
+                        <th className="py-2 px-3">Condition</th>
+                        <th className="py-2 px-3">Defects</th>
+                        <th className="py-2 px-3">Priority</th>
+                        <th className="py-2 px-3">GPS Coordinates</th>
+                        <th className="py-2 px-3">Status</th>
+                        <th className="py-2 px-3 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#242429]">
                       {pastSessions.length === 0 ? (
                         <tr>
-                          <td colSpan="8" className="py-8 text-center text-[#8a8880] font-sans">
+                          <td colSpan="8" className="py-6 text-center text-[#8a8880] font-sans text-xs">
                             No past inspection records found. Run your first inspection!
                           </td>
                         </tr>
                       ) : (
                         pastSessions.map((s) => (
                           <tr key={s.session_id} className="hover:bg-[#1a1a22] transition-colors">
-                            <td className="py-3.5 px-4 font-mono text-[11px] text-[#d6d0c7]">
+                            <td className="py-2 px-3 font-mono text-[10px] text-[#d6d0c7]">
                               <span className="block font-bold text-[#f4efe6]">{s.created_at || 'Recent'}</span>
-                              <span className="text-[10px] text-[#8a8880]">{s.session_id.slice(0, 8)}...</span>
+                              <span className="text-[9px] text-[#8a8880]">{s.session_id.slice(0, 8)}...</span>
                             </td>
-                            <td className="py-3.5 px-4 font-medium text-[#f4efe6]">{s.filename}</td>
-                            <td className="py-3.5 px-4">{getConditionBadge(s.road_condition)}</td>
-                            <td className="py-3.5 px-4 font-syne font-bold text-[#f4efe6] text-sm">{s.total_defects}</td>
-                            <td className="py-3.5 px-4 font-syne font-bold text-amber-400">P{s.repair_priority}</td>
-                            <td className="py-3.5 px-4 font-mono text-[#8a8880] text-[11px]">
+                            <td className="py-2 px-3 font-medium text-[#f4efe6] text-[11px]">{s.filename}</td>
+                            <td className="py-2 px-3">{getConditionBadge(s.road_condition)}</td>
+                            <td className="py-2 px-3 font-syne font-bold text-[#f4efe6] text-xs">{s.total_defects}</td>
+                            <td className="py-2 px-3 font-syne font-bold text-amber-400 text-xs">P{s.repair_priority}</td>
+                            <td className="py-2 px-3 font-mono text-[#8a8880] text-[10px]">
                               {s.latitude.toFixed(4)}, {s.longitude.toFixed(4)}
                             </td>
-                            <td className="py-3.5 px-4">
-                              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#f5ebe1]/10 text-[#f5ebe1] border border-[#f5ebe1]/25">
+                            <td className="py-2 px-3">
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-[#f5ebe1]/10 text-[#f5ebe1] border border-[#f5ebe1]/25">
                                 {s.status}
                               </span>
                             </td>
-                            <td className="py-3.5 px-4 text-right">
-                              <div className="flex items-center justify-end gap-2">
+                            <td className="py-2 px-3 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
                                 {s.pdf_url && (
                                   <a
                                     href={`${API_BASE}${s.pdf_url}`}
-                                    className="p-1.5 rounded-lg bg-[#181820] hover:bg-[#20202a] text-[#f5ebe1] border border-[#2e2e38] hover:border-[#f5ebe1]/50 transition-colors"
+                                    className="p-1 rounded-md bg-[#181820] hover:bg-[#20202a] text-[#f5ebe1] border border-[#2e2e38] hover:border-[#f5ebe1]/50 transition-colors"
                                     title="Download PDF"
                                   >
-                                    <FileText className="w-3.5 h-3.5" />
+                                    <FileText className="w-3 h-3" />
                                   </a>
                                 )}
                                 <a
                                   href={`${API_BASE}/api/report/csv/${s.session_id}`}
-                                  className="p-1.5 rounded-lg bg-[#181820] hover:bg-[#20202a] text-[#d6d0c7] border border-[#2e2e38] hover:border-[#f5ebe1]/50 transition-colors"
+                                  className="p-1 rounded-md bg-[#181820] hover:bg-[#20202a] text-[#d6d0c7] border border-[#2e2e38] hover:border-[#f5ebe1]/50 transition-colors"
                                   title="Download CSV"
                                 >
-                                  <Download className="w-3.5 h-3.5" />
+                                  <Download className="w-3 h-3" />
                                 </a>
                               </div>
                             </td>
