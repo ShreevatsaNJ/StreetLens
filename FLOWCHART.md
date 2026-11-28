@@ -6,6 +6,10 @@ This document details the standard engineering flowchart for **StreetLens: Auton
 
 ## 1. Complete System Flowchart Diagram
 
+![StreetLens System Flowchart](./streetlens_flowchart.png)
+
+### Mermaid Flowchart Representation
+
 ```mermaid
 flowchart TD
     %% Start & Input
